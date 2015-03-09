@@ -2,6 +2,10 @@
 /**
  * Implements the UMW_Search_Engine class
  */
+if ( ! defined( 'ABSPATH' ) ) {
+  die( 'You should not access this file directly.' );
+}
+
 if ( ! class_exists( 'UMW_Search_Engine' ) ) {
   class UMW_Search_Engine {
     public $v = 0.1;
@@ -15,12 +19,31 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
         return;
       }
 
+      if ( empty( $this->cse_id ) ) {
+        if ( file_exists( plugin_dir_path( dirname( __FILE__ ) ) . 'cse-id.php' ) ) {
+          require_once( plugin_dir_path( dirname( __FILE__ ) ) . 'cse-id.php' );
+          if ( isset( $GLOBALS['umw_cse_id'] ) ) {
+            $this->cse_id = $GLOBALS['umw_cse_id'];
+          }
+        }
+      }
+
       add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
       /* Override the default WordPress search & the default Genesis search */
       add_filter( 'get_search_form', array( $this, 'get_search_form' ) );
       add_filter( 'genesis_search_form', array( $this, 'get_search_form' ) );
       /* Override the default search results template */
       add_filter( 'search_template', array( $this, 'get_search_results' ) );
+
+      /* Hook into the template_redirect action to perform theme-altering changes */
+      add_action( 'template_redirect', array( $this, 'template_redirect' ) );
+    }
+
+    /**
+     * Perform any theme changes that need to happen
+     */
+    function template_redirect() {
+      return;
     }
 
     /**
@@ -142,7 +165,7 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
   		}
 
   		$r = '
-  <div id="cse-search-results">';
+  <div id="cse-search-results" class="umw-search-results">';
 
   		if( isset( $gce_post_content ) && !empty( $gce_post_content ) ) {
   			$r .= $gce_post_content;
@@ -204,7 +227,7 @@ jQuery( function( $ ) {
 
    		$form = '';
    		$form .= '
-   <form action="' . get_bloginfo( 'url' ) . '" id="cse-search-box">
+   <form action="' . get_bloginfo( 'url' ) . '" id="cse-search-box" class="umw-search-box">
    	<div class="umw-google-search-form">
    		<p class="umw-google-search-box">
    			<label for="s" style="margin: 0; padding: 0; width: 0; height: 0; line-height: 0; font-size: 0;">' . __( 'Search' ) . '</label>
