@@ -43,7 +43,9 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
      * Perform any theme changes that need to happen
      */
     function template_redirect() {
-      return;
+      remove_action( 'umw_header_content_full', 'umw_do_search_form', 12 );
+      remove_action( 'umw_header_content_global', 'umw_do_search_form', 12 );
+      add_action( 'genesis_before', array( $this, 'do_search_form' ), 5 );
     }
 
     /**
@@ -278,5 +280,12 @@ jQuery( function( $ ) {
      function get_search_form( $form, $search_text=null ) {
        return $this->get_google_search_form( $form, $search_text );
      }
+
+     /**
+      * Echo the search form
+      */
+    function do_search_form( $form=null, $search_text=null ) {
+      echo $this->get_google_search_form( $form, $search_text );
+    }
   }
 }
