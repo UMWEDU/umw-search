@@ -228,50 +228,130 @@ jQuery( function( $ ) {
    		$search_choice = isset( $_GET['search-choice'] ) ? $_GET['search-choice'] : ( $this->use_buttons ? 'Search UMW' : 'google' );
 
    		$form = '';
-   		$form .= '
-   <form action="' . get_bloginfo( 'url' ) . '" id="cse-search-box" class="umw-search-box">
-   	<div class="umw-google-search-form">
-   		<p class="umw-google-search-box">
-   			<label for="s" style="margin: 0; padding: 0; width: 0; height: 0; line-height: 0; font-size: 0;">' . __( 'Search' ) . '</label>
-   			<input type="text" autocomplete="off" name="s" id="s" size="31" value="' . stripslashes( esc_attr( $searchtext ) ) . '" />';
-   		if( $this->use_buttons ) {
-   			$form .= '
-   			<input type="submit" class="searchsubmit" name="search-choice" value="Search UMW" />';
-
-   			if( 1 != $blog_id ) {
-   				$form .= '
-   			<input type="submit" class="searchsubmit" name="search-choice" value="Search This Site" />';
-   			}
-
-   			if( $this->people_search ) {
-   				$form .= '
-   			<input type="submit" class="searchsubmit" name="search-choice" value="People Search" />';
-   			}
-   		} else {
-   			$form .= '
-   			<input type="submit" class="searchsubmit" value="Search"/>
-   		</p>
-   		<p class="umw-google-search-options">
-   			<!-- <strong class="umw-google-search-title">Search: </strong> -->
-   			<label class="umw-google-search-radio global-search"><input type="radio" name="search-choice" value="google"' . checked( $search_choice, 'google', false ) . '/> UMW</label>';
-
-   			if( 1 != $blog_id ) {
-   				$form .= '
-   			<label class="umw-google-search-radio site-search"><input type="radio" name="search-choice" value="wordpress"' . checked( $search_choice, 'wordpress', false ) . '/> This Site</label>';
-   			}
-
-   			if( $this->people_search ) {
-   				$form .= '
-   			<label class="umw-google-search-radio people-search"><input type="radio" name="search-choice" value="people"' . checked( $search_choice, 'people', false ) . '/> People</label>';
-   			}
-   		}
-   		$form .= '
-   		</p>
-   	</div>
-   </form>';
-
-      return $form;
+		$searchbox = '<input type="search" autocomplete="off" name="s" id="s" size="31" value="' . stripslashes( esc_attr( $searchtext ) ) . '"/>';
+		$searchbox = '<input autocomplete="off" type="search" size="10" class=" gsc-input " name="s" title="search" id="searchString" dir="ltr" spellcheck="false" style="outline: none; background: url(//www.google.com/cse/intl/en/images/google_custom_search_watermark.gif) 0% 50% no-repeat rgb(255, 255, 255);" data-cip-id="gsc-i-id1" value="' . stripslashes( esc_attr( $searchtext ) ) . '">';
+		
+		$choices = array();
+		$choices['google'] = __( 'Search UMW' );
+		if ( 1 != absint( $blog_id ) ) {
+			$choices['wordpress'] = __( 'Search this Site' );
+		}
+		if ( $this->people_search ) {
+			$choices['people'] = __( 'Search People' );
+		}
+		
+		$form = '
+<div id="portal-searchbox">
+	<form action="' . get_bloginfo( 'url' ) . '" id="cse-search-box" class="umw-search-box">
+		<ul id="menu" class="show">
+			<li class="searchContainer">
+			  %1$s
+			  <div>
+				  %2$s
+				  <input type="submit" class="searchsubmit" value="' . __( 'Go' ) . '"/>
+			  </div>
+			</li>
+		</ul>
+	</form>
+</div>';
+		
+		$tab = 1;
+		if ( count( $choices ) > 1 ) {
+			// Do a search with options
+			$meat = '';
+			foreach ( $choices as $k => $v ) {
+				$meat .= sprintf( '<li><label for="%1$s" tabindex="%5$d"><input type="radio" name="search-choice" id="%1$s" value="%2$s"%3$s/><span>%4$s</span></label>', 'search-choice-' . $k, $k, checked( $search_choice, $k, false ), $v, $tab );
+				$tab++;
+			}
+			$meat = sprintf( '<ul class="search-choices" id="search">%s</ul>', $meat );
+		} else {
+			// Do a plain search form
+			$meat = '<input type="hidden" name="search-choice" value="google"/>';
+		}
+		
+		wp_enqueue_script( 'jquery' );
+		add_action( 'wp_print_footer_scripts', array( $this, 'do_search_choices_js' ) );
+		return sprintf( $form, $meat, $searchbox );
      }
+	 
+	 function do_search_choices_js() {
+?>
+<script>
+jQuery(document).ready(function(jq) {
+
+    var input_searchstring_focus = function() {
+        jq('ul#search').addClass('show');
+        jq('#portal-searchbox').addClass('topborderradius');
+        jq('input#searchString').unbind('focus.searchstring');  // unbind ourself to avoid looping
+        jq('ul#search.show li label input:checked').focus(); // allows the user to arrow through the options 
+    };
+
+    jq('ul#search li label input').keypress(function(event) {
+        if (event.keyCode == 13) {  // If 'Enter' is clicked go to the searchbox input and not submit the form
+            // Stop the default Enter. IE doesn't understand 'preventDefualt' but does 'returnValue'
+            (event.preventDefault) ? event.preventDefault() : event.returnValue = false; 
+            focus_to_searchbox();
+        }
+    });
+    jq('ul#search li label').keyup(function(event) {
+        if (event.keyCode == 32) {  // If the 'space bar' is pressed, go to the searchbox input
+            focus_to_searchbox();
+        }
+    });
+    jq('body').keydown(function(e) {
+        var code = e.keyCode ? e.keyCode : e.which;
+        if (code == 27) { // if the ESC key is pressed, close the searchbox
+            close_searchbox();
+        }
+    });
+
+    // initial bind
+    jq('input#searchString').bind('focus.searchstring', input_searchstring_focus);
+
+    jq('input#searchString').click(click_open_search_options);
+    
+    jq('div#portal-searchbox').click(function(e) {
+        // keep click events from leaving the searchbox to avoid clicks triggering the close below if the clicks are also in the searchbox
+        e.stopPropagation();
+    });
+
+    jq('html').click(close_searchbox); // allow the user to click anywhere else and close the search selections
+
+    jq('ul#menu').removeClass('show'); // prove they can do javascript.. if not let the css option takes over
+    
+    // FUNCTIONS   
+    function clear_searchString() {
+        // Clear the box if it has the default 'Type To Search' only. Don't want to erase it if there is already a search term
+        var searchValue = jq('input#searchString').val();
+        if (searchValue == 'Type To Search...') {
+            jq('input#searchString').val('');
+        }  
+    }
+
+    function focus_to_searchbox() {
+        jq('input#searchString').select();
+        clear_searchString();
+    }
+    
+    function close_searchbox() {
+        jq('ul#search').removeClass('show');
+        jq('#portal-searchbox').removeClass('topborderradius');
+        jq('ul#search li label input').blur();
+        // rebind so the box can re-open
+        jq('input#searchString').bind('focus.searchstring', input_searchstring_focus);
+    }
+     
+    function click_open_search_options() {
+        //jq('ul#search').addClass('show');
+        jq('#portal-searchbox').addClass('topborderradius');
+        clear_searchString()
+        jq('input#searchString').select();
+    }
+
+});
+</script>
+<?php
+	 }
 
      /**
       * To be implemented at a later date.
