@@ -43,9 +43,10 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
      * Perform any theme changes that need to happen
      */
     function template_redirect() {
-      remove_action( 'umw_header_content_full', 'umw_do_search_form', 12 );
-      remove_action( 'umw_header_content_global', 'umw_do_search_form', 12 );
-      add_action( 'genesis_before', array( $this, 'do_search_form' ), 5 );
+		remove_action( 'umw_header_content_full', 'umw_do_search_form', 12 );
+		remove_action( 'umw_header_content_global', 'umw_do_search_form', 12 );
+		add_action( 'genesis_before', array( $this, 'do_header_bar' ), 5 );
+		add_action( 'umw-main-header-bar', array( $this, 'do_search_form' ), 5 );
     }
 
     /**
@@ -278,10 +279,12 @@ jQuery( function( $ ) {
 ?>
 <script>
 jQuery(document).ready(function(jq) {
+	
+	jq('input#searchString').css('background-image','none');
 
     var input_searchstring_focus = function() {
         jq('ul#search').addClass('show');
-        jq('#portal-searchbox').addClass('topborderradius');
+        /*jq('#portal-searchbox').addClass('topborderradius');*/
         jq('input#searchString').unbind('focus.searchstring');  // unbind ourself to avoid looping
         jq('ul#search.show li label input:checked').focus(); // allows the user to arrow through the options 
     };
@@ -307,7 +310,7 @@ jQuery(document).ready(function(jq) {
 
     // initial bind
     jq('input#searchString').bind('focus.searchstring', input_searchstring_focus);
-
+	
     jq('input#searchString').click(click_open_search_options);
     
     jq('div#portal-searchbox').click(function(e) {
@@ -342,8 +345,8 @@ jQuery(document).ready(function(jq) {
     }
      
     function click_open_search_options() {
-        //jq('ul#search').addClass('show');
-        jq('#portal-searchbox').addClass('topborderradius');
+        jq('ul#search').addClass('show');
+        //jq('#portal-searchbox').addClass('topborderradius');
         clear_searchString()
         jq('input#searchString').select();
     }
@@ -367,5 +370,122 @@ jQuery(document).ready(function(jq) {
     function do_search_form( $form=null, $search_text=null ) {
       echo $this->get_google_search_form( $form, $search_text );
     }
+	
+	/**
+	 * Output the header bar
+	 */
+	function do_header_bar() {
+		echo '
+<aside class="umw-header-bar">
+	<div class="wrap">';
+		do_action( 'umw-main-header-bar' );
+		echo '
+	</div>
+</aside>';
+		$this->do_header_bar_styles();
+	}
+	
+	/**
+	 * Output some CSS for the header bar
+	 */
+	function do_header_bar_styles() {
+?>
+<style>
+aside.umw-header-bar {
+	position: relative;
+	z-index: 250;
+	width: 100%;
+	background: rgb( 0, 48, 94 );
+}
+
+.umw-header-bar > .wrap {
+	background: none;
+	width: 100%;
+	max-width: 960px;
+	overflow: visible;
+	min-height: 42px;
+	clear: both;
+}
+
+#umw-custom-background {
+	clear: both;
+}
+
+#portal-searchbox {
+	float: right;
+	width: 250px;
+	background: transparent;
+}
+
+#portal-searchbox::after, 
+.umw-header-bar > .wrap::after, 
+.umw-search-box::after, 
+.umw-header-bar::after {
+	content: "";
+	clear: both;
+	width: 0;
+	height: 0;
+	line-height: 0;
+	font-size: 0;
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+}
+
+#portal-searchbox ul, 
+#portal-searchbox ul > li, 
+#portal-searchbox ol, 
+#portal-searchbox ol > li {
+	list-style: none;
+}
+
+li.searchContainer {
+	position: relative;
+	padding: 10px 20px;
+}
+
+ul.search-choices {
+	margin-top: 42px;
+	position: absolute;
+	top: 0;
+	left: -99999px;
+	width: 100%;
+	box-sizing: border-box;
+	background: rgb( 0, 48, 94 );
+	border-bottom: 1px solid #fff;
+}
+
+ul.search-choices li {
+	padding: 8px 16px;
+	border: 1px solid #fff;
+	border-bottom: none;
+	color: #fff;
+}
+
+ul.search-choices li input {
+	margin-right: 12px;
+}
+
+ul.search-choices.show {
+	left: 0;
+}
+
+.searchContainer .gsc-input {
+	width: 80%;
+}
+
+.searchContainer .searchsubmit {
+	width: 15%;
+	float: right;
+}
+
+@media all and (max-width: 1023px) {
+	aside.umw-header-bar {
+		display: none;
+	}
+}
+</style>
+<?php
+	}
   }
 }
