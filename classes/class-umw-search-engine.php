@@ -45,8 +45,8 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
     function template_redirect() {
 		remove_action( 'umw_header_content_full', 'umw_do_search_form', 12 );
 		remove_action( 'umw_header_content_global', 'umw_do_search_form', 12 );
-		add_action( 'genesis_before', array( $this, 'do_header_bar' ), 5 );
 		add_action( 'umw-main-header-bar', array( $this, 'do_search_form' ), 5 );
+		add_action( 'umw-main-header-bar-styles', array( $this, 'do_header_bar_styles' ) );
     }
 
     /**
@@ -372,24 +372,11 @@ jQuery(document).ready(function(jq) {
     }
 	
 	/**
-	 * Output the header bar
-	 */
-	function do_header_bar() {
-		echo '
-<aside class="umw-header-bar">
-	<div class="wrap">';
-		do_action( 'umw-main-header-bar' );
-		echo '
-	</div>
-</aside>';
-		$this->do_header_bar_styles();
-	}
-	
-	/**
 	 * Output some CSS for the header bar
 	 */
 	function do_header_bar_styles() {
 ?>
+<!-- UMW Header Bar Styles -->
 <style>
 aside.umw-header-bar {
 	position: relative;
@@ -479,12 +466,17 @@ ul.search-choices.show {
 	float: right;
 }
 
+#portal-searchbox li:hover, #portal-searchbox li:focus, #portal-searchbox li.sfHover {
+	position: relative;
+}
+
 @media all and (max-width: 1023px) {
 	aside.umw-header-bar {
 		display: none;
 	}
 }
 </style>
+<!-- / UMW Header Bar Styles -->
 <?php
 	}
   }
