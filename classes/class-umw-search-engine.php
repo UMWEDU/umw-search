@@ -242,10 +242,10 @@ jQuery( function( $ ) {
 		}
 		
 		$form = '
-<div id="portal-searchbox">
+<div class="umw-search-wrapper">
 	<form action="' . get_bloginfo( 'url' ) . '" id="cse-search-box" class="umw-search-box">
-		<ul id="menu" class="show">
-			<li class="searchContainer">
+		<ul class="umw-search-container-wrapper">
+			<li class="umw-search-container">
 			  %1$s
 			  <div>
 				  %2$s
@@ -264,7 +264,7 @@ jQuery( function( $ ) {
 				$meat .= sprintf( '<li><label for="%1$s" tabindex="%5$d"><input type="radio" name="search-choice" id="%1$s" value="%2$s"%3$s/><span>%4$s</span></label>', 'search-choice-' . $k, $k, checked( $search_choice, $k, false ), $v, $tab );
 				$tab++;
 			}
-			$meat = sprintf( '<ul class="search-choices" id="search">%s</ul>', $meat );
+			$meat = sprintf( '<ul class="umw-search-choices show">%s</ul>', $meat );
 		} else {
 			// Do a plain search form
 			$meat = '<input type="hidden" name="search-choice" value="google"/>';
@@ -278,80 +278,91 @@ jQuery( function( $ ) {
 	 function do_search_choices_js() {
 ?>
 <script>
-jQuery(document).ready(function(jq) {
+var UMWSearchJS = UMWSearchJS || {
+	'input' : jQuery( 'input.gsc-input' ),
+	'form' : jQuery( 'form.umw-search-box' ), 
+	'container' : jQuery( '.umw-search-wrapper' ), 
+	'menu' : jQuery( '.umw-search-choices' ), 
+	'do_focus' : function() {
+		jQuery( 'ul.umw-search-choices' ).addClass( 'show' );
+		UMWSearchJS.input.off( 'focus', UMWSearchJS.do_focus );
+		jQuery( 'ul.umw-search-choices input:checked' ).focus(); // allows the user to arrow through the options
+	}, 
+	'do_keypress' : function( event ) {
+		if ( event.keyCode == 13 ) { // If 'Enter' is clicked, go to the searchbox input and not submit the form
+			// Stop the default Enter. IE doesn't understand 'preventDefualt' but does 'returnValue'
+			UMWSearchJS.log( 'You hit the enter key' );
+			( event.preventDefault ) ? event.preventDefault() : event.returnValue = false;
+			UMWSearchJS.focus_to_searchbox();
+		}
+	}, 
+	'do_keyup' : function( event ) {
+		if ( event.keyCode == 32 ) { // If the 'space bar' is pressed, go to the searchbox input
+			UMWSearchJS.log( 'You pressed the space bar' );
+			UMWSearchJS.focus_to_searchbox();
+		}
+	}, 
+	'do_keydown' : function( event ) {
+		var code = event.keyCode ? event.keyCode : event.which;
+		if ( code == 27 ) { // if the ESC key is pressed, close the searchbox
+			UMWSearchJS.log( 'You hit the ESC key' );
+			UMWSearchJS.close();
+		}
+	}, 
+	'close' : function() {
+		UMWSearchJS.log( 'Attempting to close the box' );
+		if ( UMWSearchJS.menu.hasClass( 'mobile' ) ) {
+			return;
+		}
+		UMWSearchJS.menu.removeClass( 'show' );
+		UMWSearchJS.container.find( 'label input' ).blur();
+		// rebind so the box can re-open
+		UMWSearchJS.input.on( 'focus', UMWSearchJS.do_focus );
+	}, 
+	'open' : function() {
+		UMWSearchJS.menu.addClass( 'show' );
+		UMWSearchJS.clear();
+		UMWSearchJS.input.select();
+	}, 
+	'clear' : function() {
+		var searchValue = UMWSearchJS.input.val();
+		if ( searchValue == 'Type To Search...' ) {
+			UMWSearchJS.input.val( '' );
+		}
+	}, 
+	'focus_to_searchbox' : function() {
+		UMWSearchJS.input.select();
+		UMWSearchJS.clear();
+	}, 
+	'log' : function( m ) {
+		return;
+		
+		if ( typeof( console ) !== 'undefined' ) {
+			console.log( m );
+		} else if ( typeof( m ) == 'string' ) {
+			alert( m );
+		} else {
+			return;
+		}
+	}
+};
+
+jQuery( function( $ ) {
+	/* Remove the Google Branding image */
+	UMWSearchJS.input.css( 'background-image', 'none' );
 	
-	jq('input#searchString').css('background-image','none');
-
-    var input_searchstring_focus = function() {
-        jq('ul#search').addClass('show');
-        /*jq('#portal-searchbox').addClass('topborderradius');*/
-        jq('input#searchString').unbind('focus.searchstring');  // unbind ourself to avoid looping
-        jq('ul#search.show li label input:checked').focus(); // allows the user to arrow through the options 
-    };
-
-    jq('ul#search li label input').keypress(function(event) {
-        if (event.keyCode == 13) {  // If 'Enter' is clicked go to the searchbox input and not submit the form
-            // Stop the default Enter. IE doesn't understand 'preventDefualt' but does 'returnValue'
-            (event.preventDefault) ? event.preventDefault() : event.returnValue = false; 
-            focus_to_searchbox();
-        }
-    });
-    jq('ul#search li label').keyup(function(event) {
-        if (event.keyCode == 32) {  // If the 'space bar' is pressed, go to the searchbox input
-            focus_to_searchbox();
-        }
-    });
-    jq('body').keydown(function(e) {
-        var code = e.keyCode ? e.keyCode : e.which;
-        if (code == 27) { // if the ESC key is pressed, close the searchbox
-            close_searchbox();
-        }
-    });
-
-    // initial bind
-    jq('input#searchString').bind('focus.searchstring', input_searchstring_focus);
-	
-    jq('input#searchString').click(click_open_search_options);
-    
-    jq('div#portal-searchbox').click(function(e) {
+	UMWSearchJS.menu.find( 'label input' ).on( 'keypress', function(e) { return UMWSearchJS.do_keypress(e); } );
+	UMWSearchJS.menu.find( 'label' ).on( 'keyup', function(e) { return UMWSearchJS.do_keyup(e); } );
+	jQuery( 'body' ).on( 'keydown', function(e) { return UMWSearchJS.do_keydown(e); } );
+	UMWSearchJS.input.on( 'focus', UMWSearchJS.do_focus );
+	UMWSearchJS.input.on( 'click', function() { return UMWSearchJS.open(); } );
+	UMWSearchJS.container.on( 'click', function( e ) {
         // keep click events from leaving the searchbox to avoid clicks triggering the close below if the clicks are also in the searchbox
-        e.stopPropagation();
-    });
-
-    jq('html').click(close_searchbox); // allow the user to click anywhere else and close the search selections
-
-    jq('ul#menu').removeClass('show'); // prove they can do javascript.. if not let the css option takes over
-    
-    // FUNCTIONS   
-    function clear_searchString() {
-        // Clear the box if it has the default 'Type To Search' only. Don't want to erase it if there is already a search term
-        var searchValue = jq('input#searchString').val();
-        if (searchValue == 'Type To Search...') {
-            jq('input#searchString').val('');
-        }  
-    }
-
-    function focus_to_searchbox() {
-        jq('input#searchString').select();
-        clear_searchString();
-    }
-    
-    function close_searchbox() {
-        jq('ul#search').removeClass('show');
-        jq('#portal-searchbox').removeClass('topborderradius');
-        jq('ul#search li label input').blur();
-        // rebind so the box can re-open
-        jq('input#searchString').bind('focus.searchstring', input_searchstring_focus);
-    }
-     
-    function click_open_search_options() {
-        jq('ul#search').addClass('show');
-        //jq('#portal-searchbox').addClass('topborderradius');
-        clear_searchString()
-        jq('input#searchString').select();
-    }
-
-});
+		e.stopPropagation();
+	} );
+	jQuery( 'html' ).on( 'click', function() { UMWSearchJS.log( 'You clicked somewhere in the HTML element' ); return UMWSearchJS.close(); } );
+	UMWSearchJS.menu.removeClass( 'show' );
+} );
 </script>
 <?php
 	 }
@@ -398,16 +409,18 @@ aside.umw-header-bar {
 	clear: both;
 }
 
-#portal-searchbox {
+.umw-search-container {
 	float: right;
 	width: 250px;
 	background: transparent;
 }
 
-#portal-searchbox::after, 
+.umw-search-container::after, 
 .umw-header-bar > .wrap::after, 
 .umw-search-box::after, 
-.umw-header-bar::after {
+.umw-header-bar::after, 
+.umw-search-choices::after, 
+.umw-search-choices li::after {
 	content: "";
 	clear: both;
 	width: 0;
@@ -419,19 +432,19 @@ aside.umw-header-bar {
 	padding: 0;
 }
 
-#portal-searchbox ul, 
-#portal-searchbox ul > li, 
-#portal-searchbox ol, 
-#portal-searchbox ol > li {
+.umw-search-container ul, 
+.umw-search-container ul > li, 
+.umw-search-container ol, 
+.umw-search-container ol > li {
 	list-style: none;
 }
 
-li.searchContainer {
+li.umw-search-container {
 	position: relative;
 	padding: 10px 20px;
 }
 
-ul.search-choices {
+ul.umw-search-choices {
 	margin-top: 42px;
 	position: absolute;
 	top: 0;
@@ -442,38 +455,84 @@ ul.search-choices {
 	border-bottom: 1px solid #fff;
 }
 
-ul.search-choices li {
+ul.umw-search-choices li {
 	padding: 8px 16px;
 	border: 1px solid #fff;
 	border-bottom: none;
 	color: #fff;
 }
 
-ul.search-choices li input {
+ul.umw-search-choices li input {
 	margin-right: 12px;
 }
 
-ul.search-choices.show {
+ul.umw-search-choices.show {
 	left: 0;
 }
 
-.searchContainer .gsc-input {
-	width: 80%;
+.umw-search-container .gsc-input {
+	width: 76%;
 }
 
-.searchContainer .searchsubmit {
-	width: 15%;
+.umw-search-container .searchsubmit {
+	width: 20%;
 	float: right;
 }
 
-#portal-searchbox li:hover, #portal-searchbox li:focus, #portal-searchbox li.sfHover {
+.umw-search-container-wrapper li:hover, 
+.umw-search-container-wrapper li:focus, 
+.umw-search-container-wrapper li.sfHover {
 	position: relative;
 }
 
-@media all and (max-width: 1023px) {
-	aside.umw-header-bar {
-		display: none;
-	}
+#umw-nav li ul.umw-search-choices.mobile, 
+.umw-search-container-wrapper li:hover ul.umw-search-choices.show.mobile, 
+.umw-search-container-wrapper li:focus ul.umw-search-choices.show.mobile, 
+.umw-search-container-wrapper li.sfHover ul.umw-search-choices.show.mobile, 
+.umw-search-container-wrapper ul.umw-search-choices.show.mobile, 
+.umw-search-container-wrapper ul.umw-search-choices.show.mobile li, 
+.umw-search-container-wrapper ul.umw-search-choices.show.mobile li:hover, 
+.umw-search-container-wrapper ul.umw-search-choices.show.mobile li:focus, 
+.umw-search-container-wrapper ul.umw-search-choices.show.mobile li.sfHover {
+	position: static;
+}
+
+.mobile .umw-search-container-wrapper {
+	background: #e2e2e2;
+	color: #000;
+}
+
+.mobile .umw-search-container {
+	width: 100%;
+	float: none;
+}
+
+.mobile .umw-search-choices.mobile, 
+#umw-nav li ul.umw-search-choices.mobile, 
+#header #subnav li ul.umw-search-choices.mobile {
+	background: none;
+	border: none;
+	width: 50%;
+	min-width: 260px;
+	float: left;
+	box-sizing: border-box;
+	margin-top: 0;
+}
+
+.mobile .umw-search-choices.mobile li {
+	border: none;
+	background: none;
+}
+
+.mobile .umw-search-container > div {
+	width: 50%;
+	min-width: 260px;
+	float: left;
+	box-sizing: border-box;
+}
+
+.mobile .umw-search-container > div input {
+	padding: 8px 16px;
 }
 </style>
 <!-- / UMW Header Bar Styles -->
