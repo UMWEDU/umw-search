@@ -251,6 +251,7 @@ jQuery( function( $ ) {
 				  %2$s
 				  <input type="submit" class="searchsubmit" value="' . __( 'Go' ) . '"/>
 			  </div>
+				<br class="mobile-clear"/>
 			</li>
 		</ul>
 	</form>
@@ -498,8 +499,14 @@ ul.umw-search-choices.show {
 }
 
 .mobile .umw-search-container-wrapper {
-	background: #e2e2e2;
-	color: #000;
+	background: rgb( 0, 48, 94 );
+	color: #fff;
+}
+
+.mobile .umw-search-container-wrapper li, 
+.mobile .umw-search-container-wrapper li li, 
+#umw-nav .mobile .umw-search-container-wrapper li li {
+	color: #fff;
 }
 
 .mobile .umw-search-container {
@@ -517,6 +524,7 @@ ul.umw-search-choices.show {
 	float: left;
 	box-sizing: border-box;
 	margin-top: 0;
+	position: static;
 }
 
 .mobile .umw-search-choices.mobile li {
@@ -533,6 +541,15 @@ ul.umw-search-choices.show {
 
 .mobile .umw-search-container > div input {
 	padding: 8px 16px;
+}
+
+br.mobile-clear {
+	clear: both;
+	display: none;
+}
+
+.mobile br.mobile-clear {
+	display: block;
 }
 </style>
 <!-- / UMW Header Bar Styles -->
