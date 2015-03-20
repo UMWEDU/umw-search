@@ -14,6 +14,10 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
     public $people_search = true;
 
     function __construct() {
+		if ( ! function_exists( 'umw_is_full_header' ) ) {
+			/* Bail out if the site isn't using the UMW theme, at least until we fix the styling */
+			return;
+		}
       if ( class_exists( 'RA_Document_Post_Type' ) ) {
         /* If this is the document repository, bail out in order to avoid overriding the document search */
         return;
