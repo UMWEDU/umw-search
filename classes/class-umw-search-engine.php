@@ -469,6 +469,8 @@ ul.umw-search-choices li {
 
 ul.umw-search-choices li input {
 	margin-right: 12px;
+	background: none;
+	border: none;
 }
 
 ul.umw-search-choices.show {
@@ -483,6 +485,21 @@ ul.umw-search-choices.show {
 	width: 20%;
 	float: right;
 }
+
+/* Target IE7 with specific CSS mods */
+* + html .umw-search-container .gsc-input {
+	float: left;
+}
+
+* + html .umw-search-container .searchsubmit {
+	float: right;
+}
+
+* + html .umw-header-bar .umw-search-wrapper {
+	float: right;
+	width: 250px;
+}
+/* Done targeting IE7 */
 
 .umw-search-container-wrapper li:hover, 
 .umw-search-container-wrapper li:focus, 
