@@ -489,6 +489,7 @@ ul.umw-search-choices.show {
 /* Target IE7 with specific CSS mods */
 * + html .umw-search-container .gsc-input {
 	float: left;
+	background: #fff !important;
 }
 
 * + html .umw-search-container .searchsubmit {
@@ -498,6 +499,11 @@ ul.umw-search-choices.show {
 * + html .umw-header-bar .umw-search-wrapper {
 	float: right;
 	width: 250px;
+}
+
+* + html .umw-header-bar .umw-search-choices.show, 
+* + html .umw-header-bar .umw-search-choices {
+	display: none;
 }
 /* Done targeting IE7 */
 
