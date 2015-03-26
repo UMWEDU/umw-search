@@ -479,6 +479,12 @@ ul.umw-search-choices.show {
 
 .umw-search-container .gsc-input {
 	width: 76%;
+	padding: 5px;
+	border-radius: 0;
+	-webkit-border-radius: 0;
+	-webkit-appearance: none;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
 }
 
 .umw-search-container .searchsubmit {
