@@ -40,7 +40,7 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
       add_filter( 'search_template', array( $this, 'get_search_results' ) );
 
       /* Hook into the template_redirect action to perform theme-altering changes */
-      add_action( 'template_redirect', array( $this, 'template_redirect' ) );
+      add_action( 'template_redirect', array( $this, 'template_redirect' ), 0 );
     }
 
     /**
