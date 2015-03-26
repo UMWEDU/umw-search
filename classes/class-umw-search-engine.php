@@ -450,7 +450,7 @@ li.umw-search-container {
 }
 
 ul.umw-search-choices {
-	margin-top: 42px;
+	margin-top: 45px;
 	position: absolute;
 	top: 0;
 	left: -99999px;
@@ -479,16 +479,27 @@ ul.umw-search-choices.show {
 
 .umw-search-container .gsc-input {
 	width: 76%;
-	padding: 5px;
+	padding: 4px;
+	font-size: 11px;
+	line-height: 15px;
 	border-radius: 0;
 	-webkit-border-radius: 0;
 	-webkit-appearance: none;
 	box-sizing: border-box;
 	-moz-box-sizing: border-box;
+	border: 1px solid #333;
 }
 
 .umw-search-container .searchsubmit {
+	font-size: 11px;
+	line-height: 15px;
+	padding: 4px;
 	width: 20%;
+	float: right;
+	border: 1px solid #666;
+}
+
+.umw-header-bar .umw-search-wrapper {
 	float: right;
 }
 
