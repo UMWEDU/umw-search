@@ -8,40 +8,97 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 if ( ! class_exists( 'UMW_Search_Engine' ) ) {
   class UMW_Search_Engine {
-    public $v = 0.1;
+    public $v = 0.2;
     public $use_buttons = false;
     private $cse_id = null;
     public $people_search = true;
+	public $use_search = false;
+	public $toolbar = null;
 
     function __construct() {
-		if ( ! function_exists( 'umw_is_full_header' ) ) {
-			/* Bail out if the site isn't using the UMW theme, at least until we fix the styling */
+		global $umw_online_tools_obj;
+		$this->toolbar = $umw_online_tools_obj;
+		
+		if ( class_exists( 'RA_Document_Post_Type' ) ) {
+			/* If this is the document repository, bail out in order to avoid overriding the document search */
 			return;
 		}
-      if ( class_exists( 'RA_Document_Post_Type' ) ) {
-        /* If this is the document repository, bail out in order to avoid overriding the document search */
-        return;
-      }
 
-      if ( empty( $this->cse_id ) ) {
-        if ( file_exists( plugin_dir_path( dirname( __FILE__ ) ) . 'cse-id.php' ) ) {
-          require_once( plugin_dir_path( dirname( __FILE__ ) ) . 'cse-id.php' );
-          if ( isset( $GLOBALS['umw_cse_id'] ) ) {
-            $this->cse_id = $GLOBALS['umw_cse_id'];
-          }
-        }
-      }
-
-      add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-      /* Override the default WordPress search & the default Genesis search */
-      add_filter( 'get_search_form', array( $this, 'get_search_form' ) );
-      add_filter( 'genesis_search_form', array( $this, 'get_search_form' ) );
-      /* Override the default search results template */
-      add_filter( 'search_template', array( $this, 'get_search_results' ) );
-
-      /* Hook into the template_redirect action to perform theme-altering changes */
-      add_action( 'template_redirect', array( $this, 'template_redirect' ), 0 );
+		add_action( 'init', array( $this, 'init' ) );
+		
+		add_filter( 'validate-umw-global-toolbar-settings', array( $this, 'sanitize_settings' ), 10, 2 );
+		add_filter( 'umw-global-toolbar-settings-checkbox-fields', array( $this, 'register_settings_field' ) );
+		add_filter( 'umw-toolbar-default-settings-main', array( $this, 'default_settings_main' ) );
     }
+	
+	/**
+	 * Set things up for our plugin
+	 */
+	function init() {
+		/**
+		 * Bail out if this site isn't supposed to show the toolbar
+		 */
+		if ( false !== $this->toolbar->is_main_umw_theme() ) {
+			$this->use_search = true;
+		}
+		if ( false !== $this->toolbar->options['global-bar'] && false !== $this->toolbar->options['search'] ) {
+			$this->use_search = true;
+		}
+		
+		if ( false === $this->use_search ) {
+			if ( false !== $this->toolbar->options['global-bar'] ) {
+				add_action( 'umw-main-header-bar-styles', array( $this, 'do_header_bar_styles' ) );
+			}
+			return;
+		}
+		
+		if ( empty( $this->cse_id ) ) {
+			if ( file_exists( plugin_dir_path( dirname( __FILE__ ) ) . 'cse-id.php' ) ) {
+				require_once( plugin_dir_path( dirname( __FILE__ ) ) . 'cse-id.php' );
+				if ( isset( $GLOBALS['umw_cse_id'] ) ) {
+					$this->cse_id = $GLOBALS['umw_cse_id'];
+				}
+			}
+		}
+		
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		/* Override the default WordPress search & the default Genesis search */
+		add_filter( 'get_search_form', array( $this, 'get_search_form' ) );
+		add_filter( 'genesis_search_form', array( $this, 'get_search_form' ) );
+		/* Override the default search results template */
+		add_filter( 'search_template', array( $this, 'get_search_results' ) );
+		
+		/* Hook into the template_redirect action to perform theme-altering changes */
+		add_action( 'template_redirect', array( $this, 'template_redirect' ), 0 );
+	}
+	
+	/**
+	 * Add the settings field for this plugin to the array of fields being registered through the online tools plugin
+	 */
+	function register_settings_field( $fields=array() ) {
+		$fields['search'] = array(
+			'id'    => 'umw-enable-global-search', 
+			'title' => __( 'Global Search' ), 
+			'label' => __( 'Enable the global search area?' ), 
+		);
+		return $fields;
+	}
+	
+	/**
+	 * Sanitize our settings for this plugin
+	 */
+	function sanitize_settings( $output, $input=array() ) {
+		$output['search'] = isset( $input['search'] );
+		return $output;
+	}
+	
+	/**
+	 * Add the default option(s) for this plugin if this is the main UMW theme
+	 */
+	function default_settings_main( $options=array() ) {
+		$options['search'] = true;
+		return $options;
+	}
 
     /**
      * Perform any theme changes that need to happen
@@ -372,13 +429,13 @@ jQuery( function( $ ) {
 <?php
 	 }
 
-     /**
-      * To be implemented at a later date.
-      * Currently just returns the original Google search box
-      */
-     function get_search_form( $form, $search_text=null ) {
-       return $this->get_google_search_form( $form, $search_text );
-     }
+	/**
+	 * To be implemented at a later date.
+	 * Currently just returns the original Google search box
+	 */
+	function get_search_form( $form, $search_text=null ) {
+		return $this->get_google_search_form( $form, $search_text );
+	}
 
      /**
       * Echo the search form
@@ -408,6 +465,7 @@ aside.umw-header-bar {
 	overflow: visible;
 	min-height: 42px;
 	clear: both;
+	margin: 0 auto;
 }
 
 #umw-custom-background {
@@ -418,6 +476,11 @@ aside.umw-header-bar {
 	float: right;
 	width: 250px;
 	background: transparent;
+}
+
+.umw-search-container-wrapper {
+	margin: 0;
+	padding: 0;
 }
 
 .umw-search-container::after, 
@@ -449,7 +512,10 @@ li.umw-search-container {
 	padding: 10px 20px;
 }
 
-ul.umw-search-choices {
+ul.umw-search-choices, 
+.umw-header-bar ul.umw-search-choices {
+	margin: 0;
+	padding: 0;
 	margin-top: 45px;
 	position: absolute;
 	top: 0;
