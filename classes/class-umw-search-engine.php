@@ -316,7 +316,7 @@ jQuery( function( $ ) {
 			</li>
 		</ul>
 	</form>
-</div>';
+</div>%3$s';
 		
 		$tab = 1;
 		if ( count( $choices ) > 1 ) {
@@ -333,8 +333,10 @@ jQuery( function( $ ) {
 		}
 		
 		wp_enqueue_script( 'jquery' );
-		add_action( 'wp_print_footer_scripts', array( $this, 'do_search_choices_js' ) );
-		return sprintf( $form, $meat, $searchbox );
+		$s = "document.querySelectorAll('.umw-search-choices')[0].className = 'umw-search-choices';";
+		$s = sprintf( '<script type="text/javascript">%s</script>', $s );
+		add_action( 'wp_print_footer_scripts', array( $this, 'do_search_choices_js' ), 1 );
+		return sprintf( $form, $meat, $searchbox, $s );
      }
 	 
 	 function do_search_choices_js() {
