@@ -470,6 +470,10 @@ aside.umw-header-bar {
 	margin: 0 auto;
 }
 
+.umw-header-bar .umw-audience-menu {
+	margin: 0;
+}
+
 #umw-custom-background {
 	clear: both;
 }
@@ -565,6 +569,12 @@ ul.umw-search-choices.show {
 	width: 20%;
 	float: right;
 	border: 1px solid #666;
+	background: rgb( 51, 51, 51 );
+	color: #fff;
+}
+
+.umw-search-container .searchsubmit:hover {
+	background: #000;
 }
 
 .umw-header-bar .umw-search-wrapper {
