@@ -46,9 +46,9 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
 		}
 		
 		if ( false === $this->use_search ) {
-			if ( false !== $this->toolbar->options['global-bar'] ) {
+			/*if ( false !== $this->toolbar->options['global-bar'] ) {
 				add_action( 'umw-main-header-bar-styles', array( $this, 'do_header_bar_styles' ) );
-			}
+			}*/
 			return;
 		}
 		
@@ -116,6 +116,7 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
     function enqueue_scripts() {
       /* Enqueue the script that displays and styles the search results */
       wp_enqueue_script( 'google-cse-iframe', '//www.google.com/cse/brand?form=cse-search-box&lang=en', array(), 1, true );
+	  wp_add_inline_style( 'umw-online-tools', $this->get_header_bar_styles() );
     }
 
     /**
@@ -453,6 +454,18 @@ jQuery( function( $ ) {
 ?>
 <!-- UMW Header Bar Styles -->
 <style>
+<?php echo $this->get_header_bar_styles(); ?>
+</style>
+<!-- / UMW Header Bar Styles -->
+<?php
+	}
+	
+	/**
+	 * Gather the CSS for the header bar
+	 */
+	function get_header_bar_styles() {
+		ob_start();
+?>
 aside.umw-header-bar {
 	position: relative;
 	z-index: 250;
@@ -673,9 +686,9 @@ br.mobile-clear {
 .mobile br.mobile-clear {
 	display: block;
 }
-</style>
-<!-- / UMW Header Bar Styles -->
 <?php
+		$style = ob_get_clean();
+		return $style;
 	}
   }
 }
