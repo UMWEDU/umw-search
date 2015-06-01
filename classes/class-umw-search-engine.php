@@ -575,7 +575,7 @@ ul.umw-search-choices.show {
 	border: 1px solid #333;
 }
 
-.umw-search-container .searchsubmit {
+.umw-header-bar .umw-search-container .searchsubmit {
 	font-size: 11px;
 	line-height: 15px;
 	padding: 4px;
@@ -586,7 +586,7 @@ ul.umw-search-choices.show {
 	color: #fff;
 }
 
-.umw-search-container .searchsubmit:hover {
+.umw-header-bar .umw-search-container .searchsubmit:hover {
 	background: #000;
 }
 
