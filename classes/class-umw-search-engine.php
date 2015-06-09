@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 if ( ! class_exists( 'UMW_Search_Engine' ) ) {
   class UMW_Search_Engine {
-    public $v = 0.2;
+    public $v = '0.2.1';
     public $use_buttons = false;
     private $cse_id = null;
     public $people_search = true;
@@ -18,19 +18,19 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
     function __construct() {
 		global $umw_online_tools_obj;
 		$this->toolbar = $umw_online_tools_obj;
-		
+
 		if ( class_exists( 'RA_Document_Post_Type' ) ) {
 			/* If this is the document repository, bail out in order to avoid overriding the document search */
 			return;
 		}
 
 		add_action( 'init', array( $this, 'init' ) );
-		
+
 		add_filter( 'validate-umw-global-toolbar-settings', array( $this, 'sanitize_settings' ), 10, 2 );
 		add_filter( 'umw-global-toolbar-settings-checkbox-fields', array( $this, 'register_settings_field' ) );
 		add_filter( 'umw-toolbar-default-settings-main', array( $this, 'default_settings_main' ) );
     }
-	
+
 	/**
 	 * Set things up for our plugin
 	 */
@@ -44,14 +44,14 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
 		if ( false !== $this->toolbar->options['global-bar'] && false !== $this->toolbar->options['search'] ) {
 			$this->use_search = true;
 		}
-		
+
 		if ( false === $this->use_search ) {
 			/*if ( false !== $this->toolbar->options['global-bar'] ) {
 				add_action( 'umw-main-header-bar-styles', array( $this, 'do_header_bar_styles' ) );
 			}*/
 			return;
 		}
-		
+
 		if ( empty( $this->cse_id ) ) {
 			if ( file_exists( plugin_dir_path( dirname( __FILE__ ) ) . 'cse-id.php' ) ) {
 				require_once( plugin_dir_path( dirname( __FILE__ ) ) . 'cse-id.php' );
@@ -60,30 +60,30 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
 				}
 			}
 		}
-		
+
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		/* Override the default WordPress search & the default Genesis search */
 		add_filter( 'get_search_form', array( $this, 'get_search_form' ) );
 		add_filter( 'genesis_search_form', array( $this, 'get_search_form' ) );
 		/* Override the default search results template */
 		add_filter( 'search_template', array( $this, 'get_search_results' ) );
-		
+
 		/* Hook into the template_redirect action to perform theme-altering changes */
 		add_action( 'template_redirect', array( $this, 'template_redirect' ), 0 );
 	}
-	
+
 	/**
 	 * Add the settings field for this plugin to the array of fields being registered through the online tools plugin
 	 */
 	function register_settings_field( $fields=array() ) {
 		$fields['search'] = array(
-			'id'    => 'umw-enable-global-search', 
-			'title' => __( 'Global Search' ), 
-			'label' => __( 'Enable the global search area?' ), 
+			'id'    => 'umw-enable-global-search',
+			'title' => __( 'Global Search' ),
+			'label' => __( 'Enable the global search area?' ),
 		);
 		return $fields;
 	}
-	
+
 	/**
 	 * Sanitize our settings for this plugin
 	 */
@@ -91,7 +91,7 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
 		$output['search'] = isset( $input['search'] );
 		return $output;
 	}
-	
+
 	/**
 	 * Add the default option(s) for this plugin if this is the main UMW theme
 	 */
@@ -217,7 +217,7 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
   		) );
   	}
 
-    function get_search_results_html() {
+    function get_search_results_html( $native=false ) {
   		global $more, $active_directory_employee_list_object;
   		$more = 1;
 
@@ -228,6 +228,22 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
   				$gce_post_content = $adel->show_employees( /*$group=*/'All_UMW_Faculty_Staff;All_Active_Students_SG', /*$fields=*/$adel->fields_to_show, /*$formatting=*/array(), /*$echo=*/false, /*$show_title=*/false, /*$wrap_list=*/true, /*$include_search=*/false );
   			}
   		}
+
+        if ( get_option( 'native-cse', false ) ) {
+            $gce_post_content = '<script>
+  (function() {
+    var cx = \'' . $this->cse_id . '\';
+    var gcse = document.createElement(\'script\');
+    gcse.type = \'text/javascript\';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == \'https:\' ? \'https:\' : \'http:\') +
+        \'//cse.google.com/cse.js?cx=\' + cx;
+    var s = document.getElementsByTagName(\'script\')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:searchresults-only></gcse:searchresults-only>';
+        }
 
   		$r = '
   <div id="cse-search-results" class="umw-search-results">';
@@ -276,9 +292,38 @@ jQuery( function( $ ) {
    	}
 
     /**
+     * Implement the JS-based native Google CSE form
+     */
+    function get_native_google_search_form( $form, $searchtext=null ) {
+        ob_start();
+?>
+<div class="umw-google-cse">
+<script>
+  (function() {
+    var cx = '<?php echo json_encode( $this->cse_id ) ?>';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:searchbox-only></gcse:searchbox-only>
+</div>
+<?php
+        return ob_get_clean();
+    }
+
+    /**
      * Implement the Google search box
      */
-    function get_google_search_form( $form, $searchtext=null ) {
+    function get_google_search_form( $form, $searchtext=null, $native=false ) {
+        if ( $native ) {
+            return $this->get_native_google_search_form( $form, $searchtext );
+        }
+
    		/**
    		 * iFrame Search Form
    		 */
@@ -293,7 +338,7 @@ jQuery( function( $ ) {
    		$form = '';
 		$searchbox = '<input type="search" autocomplete="off" name="s" id="s" size="31" value="' . stripslashes( esc_attr( $searchtext ) ) . '"/>';
 		$searchbox = '<input autocomplete="off" type="search" size="10" class=" gsc-input " name="s" title="search" id="searchString" dir="ltr" spellcheck="false" style="outline: none; background: url(//www.google.com/cse/intl/en/images/google_custom_search_watermark.gif) 0% 50% no-repeat rgb(255, 255, 255);" data-cip-id="gsc-i-id1" value="' . stripslashes( esc_attr( $searchtext ) ) . '">';
-		
+
 		$choices = array();
 		$choices['google'] = __( 'Search UMW' );
 		if ( 1 != absint( $blog_id ) ) {
@@ -302,7 +347,7 @@ jQuery( function( $ ) {
 		if ( $this->people_search ) {
 			$choices['people'] = __( 'Search People' );
 		}
-		
+
 		$form = '
 <div class="umw-search-wrapper">
 	<form action="' . get_bloginfo( 'url' ) . '" id="cse-search-box" class="umw-search-box">
@@ -318,7 +363,7 @@ jQuery( function( $ ) {
 		</ul>
 	</form>
 </div>%3$s';
-		
+
 		$tab = 1;
 		if ( count( $choices ) > 1 ) {
 			// Do a search with options
@@ -332,27 +377,27 @@ jQuery( function( $ ) {
 			// Do a plain search form
 			$meat = '<input type="hidden" name="search-choice" value="google"/>';
 		}
-		
+
 		wp_enqueue_script( 'jquery' );
 		$s = "document.querySelectorAll('.umw-search-choices')[0].className = 'umw-search-choices';";
 		$s = sprintf( '<script type="text/javascript">%s</script>', $s );
 		add_action( 'wp_print_footer_scripts', array( $this, 'do_search_choices_js' ), 1 );
 		return sprintf( $form, $meat, $searchbox, $s );
      }
-	 
+
 	 function do_search_choices_js() {
 ?>
 <script>
 var UMWSearchJS = UMWSearchJS || {
 	'input' : jQuery( 'input.gsc-input' ),
-	'form' : jQuery( 'form.umw-search-box' ), 
-	'container' : jQuery( '.umw-search-wrapper' ), 
-	'menu' : jQuery( '.umw-search-choices' ), 
+	'form' : jQuery( 'form.umw-search-box' ),
+	'container' : jQuery( '.umw-search-wrapper' ),
+	'menu' : jQuery( '.umw-search-choices' ),
 	'do_focus' : function() {
 		jQuery( 'ul.umw-search-choices' ).addClass( 'show' );
 		UMWSearchJS.input.off( 'focus', UMWSearchJS.do_focus );
 		jQuery( 'ul.umw-search-choices input:checked' ).focus(); // allows the user to arrow through the options
-	}, 
+	},
 	'do_keypress' : function( event ) {
 		if ( event.keyCode == 13 ) { // If 'Enter' is clicked, go to the searchbox input and not submit the form
 			// Stop the default Enter. IE doesn't understand 'preventDefualt' but does 'returnValue'
@@ -360,20 +405,20 @@ var UMWSearchJS = UMWSearchJS || {
 			( event.preventDefault ) ? event.preventDefault() : event.returnValue = false;
 			UMWSearchJS.focus_to_searchbox();
 		}
-	}, 
+	},
 	'do_keyup' : function( event ) {
 		if ( event.keyCode == 32 ) { // If the 'space bar' is pressed, go to the searchbox input
 			UMWSearchJS.log( 'You pressed the space bar' );
 			UMWSearchJS.focus_to_searchbox();
 		}
-	}, 
+	},
 	'do_keydown' : function( event ) {
 		var code = event.keyCode ? event.keyCode : event.which;
 		if ( code == 27 ) { // if the ESC key is pressed, close the searchbox
 			UMWSearchJS.log( 'You hit the ESC key' );
 			UMWSearchJS.close();
 		}
-	}, 
+	},
 	'close' : function() {
 		UMWSearchJS.log( 'Attempting to close the box' );
 		if ( UMWSearchJS.menu.hasClass( 'mobile' ) ) {
@@ -383,25 +428,25 @@ var UMWSearchJS = UMWSearchJS || {
 		UMWSearchJS.container.find( 'label input' ).blur();
 		// rebind so the box can re-open
 		UMWSearchJS.input.on( 'focus', UMWSearchJS.do_focus );
-	}, 
+	},
 	'open' : function() {
 		UMWSearchJS.menu.addClass( 'show' );
 		UMWSearchJS.clear();
 		UMWSearchJS.input.select();
-	}, 
+	},
 	'clear' : function() {
 		var searchValue = UMWSearchJS.input.val();
 		if ( searchValue == 'Type To Search...' ) {
 			UMWSearchJS.input.val( '' );
 		}
-	}, 
+	},
 	'focus_to_searchbox' : function() {
 		UMWSearchJS.input.select();
 		UMWSearchJS.clear();
-	}, 
+	},
 	'log' : function( m ) {
 		return;
-		
+
 		if ( typeof( console ) !== 'undefined' ) {
 			console.log( m );
 		} else if ( typeof( m ) == 'string' ) {
@@ -415,7 +460,7 @@ var UMWSearchJS = UMWSearchJS || {
 jQuery( function( $ ) {
 	/* Remove the Google Branding image */
 	UMWSearchJS.input.css( 'background-image', 'none' );
-	
+
 	UMWSearchJS.menu.find( 'label input' ).on( 'keypress', function(e) { return UMWSearchJS.do_keypress(e); } );
 	UMWSearchJS.menu.find( 'label' ).on( 'keyup', function(e) { return UMWSearchJS.do_keyup(e); } );
 	jQuery( 'body' ).on( 'keydown', function(e) { return UMWSearchJS.do_keydown(e); } );
@@ -437,7 +482,8 @@ jQuery( function( $ ) {
 	 * Currently just returns the original Google search box
 	 */
 	function get_search_form( $form, $search_text=null ) {
-		return $this->get_google_search_form( $form, $search_text );
+        $native = get_option( 'native-cse', false );
+		return $this->get_google_search_form( $form, $search_text, $native );
 	}
 
      /**
@@ -446,7 +492,7 @@ jQuery( function( $ ) {
     function do_search_form( $form=null, $search_text=null ) {
       echo $this->get_google_search_form( $form, $search_text );
     }
-	
+
 	/**
 	 * Output some CSS for the header bar
 	 */
@@ -459,7 +505,7 @@ jQuery( function( $ ) {
 <!-- / UMW Header Bar Styles -->
 <?php
 	}
-	
+
 	/**
 	 * Gather the CSS for the header bar
 	 */
@@ -502,11 +548,11 @@ aside.umw-header-bar {
 	padding: 0;
 }
 
-.umw-search-container::after, 
-.umw-header-bar > .wrap::after, 
-.umw-search-box::after, 
-.umw-header-bar::after, 
-.umw-search-choices::after, 
+.umw-search-container::after,
+.umw-header-bar > .wrap::after,
+.umw-search-box::after,
+.umw-header-bar::after,
+.umw-search-choices::after,
 .umw-search-choices li::after {
 	content: "";
 	clear: both;
@@ -519,9 +565,9 @@ aside.umw-header-bar {
 	padding: 0;
 }
 
-.umw-search-container ul, 
-.umw-search-container ul > li, 
-.umw-search-container ol, 
+.umw-search-container ul,
+.umw-search-container ul > li,
+.umw-search-container ol,
 .umw-search-container ol > li {
 	list-style: none;
 }
@@ -531,7 +577,7 @@ li.umw-search-container {
 	padding: 10px 20px;
 }
 
-ul.umw-search-choices, 
+ul.umw-search-choices,
 .umw-header-bar ul.umw-search-choices {
 	margin: 0;
 	padding: 0;
@@ -609,26 +655,26 @@ ul.umw-search-choices.show {
 	width: 250px;
 }
 
-* + html .umw-header-bar .umw-search-choices.show, 
+* + html .umw-header-bar .umw-search-choices.show,
 * + html .umw-header-bar .umw-search-choices {
 	display: none;
 }
 /* Done targeting IE7 */
 
-.umw-search-container-wrapper li:hover, 
-.umw-search-container-wrapper li:focus, 
+.umw-search-container-wrapper li:hover,
+.umw-search-container-wrapper li:focus,
 .umw-search-container-wrapper li.sfHover {
 	position: relative;
 }
 
-#umw-nav li ul.umw-search-choices.mobile, 
-.umw-search-container-wrapper li:hover ul.umw-search-choices.show.mobile, 
-.umw-search-container-wrapper li:focus ul.umw-search-choices.show.mobile, 
-.umw-search-container-wrapper li.sfHover ul.umw-search-choices.show.mobile, 
-.umw-search-container-wrapper ul.umw-search-choices.show.mobile, 
-.umw-search-container-wrapper ul.umw-search-choices.show.mobile li, 
-.umw-search-container-wrapper ul.umw-search-choices.show.mobile li:hover, 
-.umw-search-container-wrapper ul.umw-search-choices.show.mobile li:focus, 
+#umw-nav li ul.umw-search-choices.mobile,
+.umw-search-container-wrapper li:hover ul.umw-search-choices.show.mobile,
+.umw-search-container-wrapper li:focus ul.umw-search-choices.show.mobile,
+.umw-search-container-wrapper li.sfHover ul.umw-search-choices.show.mobile,
+.umw-search-container-wrapper ul.umw-search-choices.show.mobile,
+.umw-search-container-wrapper ul.umw-search-choices.show.mobile li,
+.umw-search-container-wrapper ul.umw-search-choices.show.mobile li:hover,
+.umw-search-container-wrapper ul.umw-search-choices.show.mobile li:focus,
 .umw-search-container-wrapper ul.umw-search-choices.show.mobile li.sfHover {
 	position: static;
 }
@@ -638,8 +684,8 @@ ul.umw-search-choices.show {
 	color: #fff;
 }
 
-.mobile .umw-search-container-wrapper li, 
-.mobile .umw-search-container-wrapper li li, 
+.mobile .umw-search-container-wrapper li,
+.mobile .umw-search-container-wrapper li li,
 #umw-nav .mobile .umw-search-container-wrapper li li {
 	color: #fff;
 }
@@ -649,8 +695,8 @@ ul.umw-search-choices.show {
 	float: none;
 }
 
-.mobile .umw-search-choices.mobile, 
-#umw-nav li ul.umw-search-choices.mobile, 
+.mobile .umw-search-choices.mobile,
+#umw-nav li ul.umw-search-choices.mobile,
 #header #subnav li ul.umw-search-choices.mobile {
 	background: none;
 	border: none;
