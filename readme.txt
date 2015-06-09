@@ -26,19 +26,19 @@ This plugin now hooks into the UMW Online Tools plugin to output the search engi
 
 Create a blank file at wp-content/plugins/umw-search/cse-id.php and paste in the following code:
 
-`
+```
     <?php
-    if ( ! defined( \'ABSPATH\' ) ) {
-      die( \'You should not access this file directly.\' );
+    if ( ! defined( 'ABSPATH' ) ) {
+      die( 'You should not access this file directly.' );
     }
 
     global $umw_cse_id;
-    $umw_cse_id = \'\';
-`
+    $umw_cse_id = '';
+```
 
-== Why don\'t things like auto-complete, etc. work? ==
+== Why don't things like auto-complete, etc. work? ==
 
-For accessibility reasons, this plugin was originally designed to mimic the HTML output of Google\'s custom search engine. Google uses a single line of JavaScript code to render the normal search box, which would leave the search engine inoperable for any that don\'t use JS. Since this plugin doesn\'t use the native Google code, some features of the CSE are not available.
+For accessibility reasons, this plugin was originally designed to mimic the HTML output of Google's custom search engine. Google uses a single line of JavaScript code to render the normal search box, which would leave the search engine inoperable for any that don't use JS. Since this plugin doesn't use the native Google code, some features of the CSE are not available.
 
 == Changelog ==
 = 0.2 =
