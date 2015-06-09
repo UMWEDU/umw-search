@@ -3,7 +3,7 @@
  * Plugin Name: UMW Custom Search
  * Plugin URI: https://github.com/UMWEDU/umw-search
  * Description: Implements the custom search functionality for the UMW website
- * Version: 0.2.2
+ * Version: 0.2.3
  * Author: Curtiss Grymala
  * Author URI: http://www.umw.edu/
  * License: GPL2
