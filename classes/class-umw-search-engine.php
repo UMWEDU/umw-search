@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 if ( ! class_exists( 'UMW_Search_Engine' ) ) {
   class UMW_Search_Engine {
-    public $v = '0.2.3';
+    public $v = '0.2.4';
     public $use_buttons = false;
     private $cse_id = null;
     public $people_search = true;
