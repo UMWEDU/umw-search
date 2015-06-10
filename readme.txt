@@ -4,7 +4,7 @@ Tags: search, google cse, umw
 Donate link: http://giving.umw.edu/
 Requires at least: 4.0
 Tested up to: 4.2.2
-Stable tag: 0.2.4
+Stable tag: 0.2.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,10 @@ Create a blank file at wp-content/plugins/umw-search/cse-id.php and paste in the
 For accessibility reasons, this plugin was originally designed to mimic the HTML output of Google's custom search engine. Google uses a single line of JavaScript code to render the normal search box, which would leave the search engine inoperable for any that don't use JS. Since this plugin doesn't use the native Google code, some features of the CSE are not available.
 
 == Changelog ==
+
+= 0.3 =
+* Add placeholder class to stop the plugin from throwing fatal errors if the Online Tools plugin can’t be located
+
 = 0.2 =
 * Integrate the plugin into the Online Tools plugin
 

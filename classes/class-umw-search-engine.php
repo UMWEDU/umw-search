@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 if ( ! class_exists( 'UMW_Search_Engine' ) ) {
   class UMW_Search_Engine {
-    public $v = '0.2.4';
+    public $v = '0.2.5';
     public $use_buttons = false;
     private $cse_id = null;
     public $people_search = true;
@@ -17,7 +17,11 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
 
     function __construct() {
 		global $umw_online_tools_obj;
-		$this->toolbar = $umw_online_tools_obj;
+		if ( isset( $umw_online_tools_obj ) && is_a( $umw_online_tools_obj, 'UMW_Online_Tools' ) ) {
+			$this->toolbar = $umw_online_tools_obj;
+		} else {
+			$this->toolbar = new UMW_Online_Tools_Placeholder;
+		}
 
 		if ( class_exists( 'RA_Document_Post_Type' ) ) {
 			/* If this is the document repository, bail out in order to avoid overriding the document search */
@@ -738,3 +742,12 @@ br.mobile-clear {
 	}
   }
 }
+
+class UMW_Online_Tools_Placeholder {
+	function __construct() {
+		$this->options = array();
+	}
+	function is_main_umw_theme() {
+		return false;
+	}
+};
