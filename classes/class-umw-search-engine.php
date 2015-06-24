@@ -585,7 +585,7 @@ ul.umw-search-choices,
 .umw-header-bar ul.umw-search-choices {
 	margin: 0;
 	padding: 0;
-	margin-top: 45px;
+	margin-top: 47px;
 	position: absolute;
 	top: 0;
 	left: -99999px;
@@ -596,16 +596,18 @@ ul.umw-search-choices,
 }
 
 ul.umw-search-choices li {
-	padding: 8px 16px;
+	padding: 16px;
 	border: 1px solid #fff;
 	border-bottom: none;
 	color: #fff;
+	font-size: 12px;
 }
 
 ul.umw-search-choices li input {
 	margin-right: 12px;
 	background: none;
 	border: none;
+	vertical-align: middle;
 }
 
 ul.umw-search-choices.show {
