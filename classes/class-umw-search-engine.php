@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 if ( ! class_exists( 'UMW_Search_Engine' ) ) {
   class UMW_Search_Engine {
-    public $v = '0.2.5';
+    public $v = '0.2.6';
     public $use_buttons = false;
     private $cse_id = null;
     public $people_search = true;
@@ -342,6 +342,7 @@ jQuery( function( $ ) {
    		$form = '';
 		$searchbox = '<input type="search" autocomplete="off" name="s" id="s" size="31" value="' . stripslashes( esc_attr( $searchtext ) ) . '"/>';
 		$searchbox = '<input autocomplete="off" type="search" size="10" class=" gsc-input " name="s" title="search" id="searchString" dir="ltr" spellcheck="false" style="outline: none; background: url(//www.google.com/cse/intl/en/images/google_custom_search_watermark.gif) 0% 50% no-repeat rgb(255, 255, 255);" data-cip-id="gsc-i-id1" value="' . stripslashes( esc_attr( $searchtext ) ) . '">';
+		$searchbox = '<label class="hidden" for="searchString">' . __( 'Search:' ) . '</label>' . $searchbox;
 
 		$choices = array();
 		$choices['google'] = __( 'Search UMW' );
