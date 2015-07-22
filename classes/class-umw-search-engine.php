@@ -59,6 +59,8 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
 		if ( empty( $this->cse_id ) ) {
 			if ( isset( $GLOBALS['umw_cse_id'] ) ) {
 				$this->cse_id = $GLOBALS['umw_cse_id'];
+			} else if ( defined( 'UMW_CSE_ID' ) ) {
+				$this->cse_id = UMW_CSE_ID;
 			} else if ( file_exists( plugin_dir_path( dirname( __FILE__ ) ) . 'cse-id.php' ) ) {
 				require_once( plugin_dir_path( dirname( __FILE__ ) ) . 'cse-id.php' );
 				if ( isset( $GLOBALS['umw_cse_id'] ) ) {
