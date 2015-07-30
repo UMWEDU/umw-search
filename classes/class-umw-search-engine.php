@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 if ( ! class_exists( 'UMW_Search_Engine' ) ) {
   class UMW_Search_Engine {
-    public $v = '0.2.6';
+    public $v = '0.2.7';
     public $use_buttons = false;
     private $cse_id = null;
     public $people_search = true;
@@ -50,9 +50,6 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
 		}
 
 		if ( false === $this->use_search ) {
-			/*if ( false !== $this->toolbar->options['global-bar'] ) {
-				add_action( 'umw-main-header-bar-styles', array( $this, 'do_header_bar_styles' ) );
-			}*/
 			return;
 		}
 
@@ -115,7 +112,6 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
 		remove_action( 'umw_header_content_full', 'umw_do_search_form', 12 );
 		remove_action( 'umw_header_content_global', 'umw_do_search_form', 12 );
 		add_action( 'umw-main-header-bar', array( $this, 'do_search_form' ), 5 );
-		add_action( 'umw-main-header-bar-styles', array( $this, 'do_header_bar_styles' ) );
     }
 
     /**
@@ -124,7 +120,6 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
     function enqueue_scripts() {
       /* Enqueue the script that displays and styles the search results */
       wp_enqueue_script( 'google-cse-iframe', '//www.google.com/cse/brand?form=cse-search-box&lang=en', array(), 1, true );
-	  wp_add_inline_style( 'umw-online-tools', $this->get_header_bar_styles() );
     }
 
     /**
@@ -502,251 +497,6 @@ jQuery( function( $ ) {
       echo $this->get_google_search_form( $form, $search_text );
     }
 
-	/**
-	 * Output some CSS for the header bar
-	 */
-	function do_header_bar_styles() {
-?>
-<!-- UMW Header Bar Styles -->
-<style>
-<?php echo $this->get_header_bar_styles(); ?>
-</style>
-<!-- / UMW Header Bar Styles -->
-<?php
-	}
-
-	/**
-	 * Gather the CSS for the header bar
-	 */
-	function get_header_bar_styles() {
-		ob_start();
-?>
-aside.umw-header-bar {
-	position: relative;
-	z-index: 250;
-	width: 100%;
-	background: rgb( 0, 48, 94 );
-}
-
-.umw-header-bar > .wrap {
-	background: none;
-	width: 100%;
-	max-width: 960px;
-	overflow: visible;
-	min-height: 42px;
-	clear: both;
-	margin: 0 auto;
-}
-
-.umw-header-bar .umw-audience-menu {
-	margin: 0;
-}
-
-#umw-custom-background {
-	clear: both;
-}
-
-.umw-search-container {
-	float: right;
-	width: 250px;
-	background: transparent;
-}
-
-.umw-search-container-wrapper {
-	margin: 0;
-	padding: 0;
-}
-
-.umw-search-container::after,
-.umw-header-bar > .wrap::after,
-.umw-search-box::after,
-.umw-header-bar::after,
-.umw-search-choices::after,
-.umw-search-choices li::after {
-	content: "";
-	clear: both;
-	width: 0;
-	height: 0;
-	line-height: 0;
-	font-size: 0;
-	overflow: hidden;
-	margin: 0;
-	padding: 0;
-}
-
-.umw-search-container ul,
-.umw-search-container ul > li,
-.umw-search-container ol,
-.umw-search-container ol > li {
-	list-style: none;
-}
-
-li.umw-search-container {
-	position: relative;
-	padding: 10px 20px;
-}
-
-ul.umw-search-choices,
-.umw-header-bar ul.umw-search-choices {
-	margin: 0;
-	padding: 0;
-	margin-top: 47px;
-	position: absolute;
-	top: 0;
-	left: -99999px;
-	width: 100%;
-	box-sizing: border-box;
-	background: rgb( 0, 48, 94 );
-	border-bottom: 1px solid #fff;
-}
-
-ul.umw-search-choices li {
-	padding: 16px;
-	border: 1px solid #fff;
-	border-bottom: none;
-	color: #fff;
-	font-size: 12px;
-}
-
-ul.umw-search-choices li input {
-	margin-right: 12px;
-	background: none;
-	border: none;
-	vertical-align: middle;
-}
-
-ul.umw-search-choices.show {
-	left: 0;
-}
-
-.umw-search-container .gsc-input {
-	width: 76%;
-	padding: 4px;
-	font-size: 11px;
-	line-height: 15px;
-	border-radius: 0;
-	-webkit-border-radius: 0;
-	-webkit-appearance: none;
-	box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	border: 1px solid #333;
-}
-
-.umw-header-bar .umw-search-container .searchsubmit {
-	font-size: 11px;
-	line-height: 15px;
-	padding: 4px;
-	width: 20%;
-	float: right;
-	border: 1px solid #666;
-	background: rgb( 51, 51, 51 );
-	color: #fff;
-}
-
-.umw-header-bar .umw-search-container .searchsubmit:hover {
-	background: #000;
-}
-
-.umw-header-bar .umw-search-wrapper {
-	float: right;
-}
-
-/* Target IE7 with specific CSS mods */
-* + html .umw-search-container .gsc-input {
-	float: left;
-	background: #fff !important;
-}
-
-* + html .umw-search-container .searchsubmit {
-	float: right;
-}
-
-* + html .umw-header-bar .umw-search-wrapper {
-	float: right;
-	width: 250px;
-}
-
-* + html .umw-header-bar .umw-search-choices.show,
-* + html .umw-header-bar .umw-search-choices {
-	display: none;
-}
-/* Done targeting IE7 */
-
-.umw-search-container-wrapper li:hover,
-.umw-search-container-wrapper li:focus,
-.umw-search-container-wrapper li.sfHover {
-	position: relative;
-}
-
-#umw-nav li ul.umw-search-choices.mobile,
-.umw-search-container-wrapper li:hover ul.umw-search-choices.show.mobile,
-.umw-search-container-wrapper li:focus ul.umw-search-choices.show.mobile,
-.umw-search-container-wrapper li.sfHover ul.umw-search-choices.show.mobile,
-.umw-search-container-wrapper ul.umw-search-choices.show.mobile,
-.umw-search-container-wrapper ul.umw-search-choices.show.mobile li,
-.umw-search-container-wrapper ul.umw-search-choices.show.mobile li:hover,
-.umw-search-container-wrapper ul.umw-search-choices.show.mobile li:focus,
-.umw-search-container-wrapper ul.umw-search-choices.show.mobile li.sfHover {
-	position: static;
-}
-
-.mobile .umw-search-container-wrapper {
-	background: rgb( 0, 48, 94 );
-	color: #fff;
-}
-
-.mobile .umw-search-container-wrapper li,
-.mobile .umw-search-container-wrapper li li,
-#umw-nav .mobile .umw-search-container-wrapper li li {
-	color: #fff;
-}
-
-.mobile .umw-search-container {
-	width: 100%;
-	float: none;
-}
-
-.mobile .umw-search-choices.mobile,
-#umw-nav li ul.umw-search-choices.mobile,
-#header #subnav li ul.umw-search-choices.mobile {
-	background: none;
-	border: none;
-	width: 50%;
-	min-width: 260px;
-	float: left;
-	box-sizing: border-box;
-	margin-top: 0;
-	position: static;
-}
-
-.mobile .umw-search-choices.mobile li {
-	border: none;
-	background: none;
-}
-
-.mobile .umw-search-container > div {
-	width: 50%;
-	min-width: 260px;
-	float: left;
-	box-sizing: border-box;
-}
-
-.mobile .umw-search-container > div input {
-	padding: 8px 16px;
-}
-
-br.mobile-clear {
-	clear: both;
-	display: none;
-}
-
-.mobile br.mobile-clear {
-	display: block;
-}
-<?php
-		$style = ob_get_clean();
-		return $style;
-	}
   }
 }
 
