@@ -40,6 +40,24 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
 	 */
 	function init() {
 		/**
+		 * We need to try to short-circuit any Directory searches & point them to a WP search on the Directory site
+		 */
+		if ( isset( $_GET['s'] ) && isset( $_GET['search-choice'] ) && 'people' == $_GET['search-choice'] ) {
+			if ( defined( 'UMW_EMPLOYEE_DIRECTORY' ) ) {
+				$url = null;
+				if ( is_numeric( UMW_EMPLOYEE_DIRECTORY ) && $GLOBALS['blog_id'] != UMW_EMPLOYEE_DIRECTORY ) {
+					$url = add_query_arg( 's', esc_url( $_GET['s'] ), get_blog_option( 'home' ) );
+				} else if ( esc_url( UMW_EMPLOYEE_DIRECTORY ) ) {
+					$url = add_query_arg( 's', esc_attr( $_GET['s'] ), esc_url( UMW_EMPLOYEE_DIRECTORY ) );
+				}
+				if ( ! empty( $url ) ) {
+					header( "Location: " . $url );
+					die();
+				}
+			}
+		}
+	
+		/**
 		 * Bail out if this site isn't supposed to show the toolbar
 		 */
 		if ( false !== $this->toolbar->is_main_umw_theme() ) {
