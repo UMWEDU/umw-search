@@ -45,12 +45,18 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
 		if ( isset( $_GET['s'] ) && isset( $_GET['search-choice'] ) && 'people' == $_GET['search-choice'] ) {
 			if ( defined( 'UMW_EMPLOYEE_DIRECTORY' ) ) {
 				$url = null;
-				if ( is_numeric( UMW_EMPLOYEE_DIRECTORY ) && $GLOBALS['blog_id'] != UMW_EMPLOYEE_DIRECTORY ) {
-					$url = add_query_arg( 's', esc_url( $_GET['s'] ), get_blog_option( 'home' ) );
+				$_GET['s'] = stripslashes_deep( $_GET['s'] );
+				if ( is_numeric( UMW_EMPLOYEE_DIRECTORY ) && $GLOBALS['blog_id'] == UMW_EMPLOYEE_DIRECTORY ) {
+					$url = add_query_arg( 's', $_GET['s'], trailingslashit( esc_url( get_bloginfo( 'url' ) ) ) );
+				} else if ( is_numeric( UMW_EMPLOYEE_DIRECTORY ) && $GLOBALS['blog_id'] != UMW_EMPLOYEE_DIRECTORY ) {
+					$url = add_query_arg( 's', $_GET['s'], trailingslashit( esc_url( get_blog_option( UMW_EMPLOYEE_DIRECTORY, 'home' ) ) ) );
 				} else if ( esc_url( UMW_EMPLOYEE_DIRECTORY ) ) {
-					$url = add_query_arg( 's', esc_attr( $_GET['s'] ), esc_url( UMW_EMPLOYEE_DIRECTORY ) );
+					$url = add_query_arg( 's', $_GET['s'], trailingslashit( esc_url( UMW_EMPLOYEE_DIRECTORY ) ) );
 				}
 				if ( ! empty( $url ) ) {
+					/*if ( is_user_logged_in() && current_user_can( 'delete_users' ) ) {
+						wp_die( 'Should be redirecting to ' . $url );
+					}*/
 					header( "Location: " . $url );
 					die();
 				}
