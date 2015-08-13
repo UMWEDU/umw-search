@@ -153,6 +153,19 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
         }
       }
 
+	  if ( defined( 'UMW_EMPLOYEE_DIRECTORY' ) ) {
+		  if ( is_numeric( UMW_EMPLOYEE_DIRECTORY ) ) {
+			  $url = get_blog_option( UMW_EMPLOYEE_DIRECTORY, 'home', false );
+		  } else {
+			  $url = esc_url( UMW_EMPLOYEE_DIRECTORY );
+		  }
+		  if ( isset( $_GET['search-choice'] ) && 'people' == $_GET['search-choice'] ) {
+			  if  ( isset( $_GET['s'] ) && ! stristr( $_GET['s'], 'site:' ) ) {
+				  $_GET['s'] .= ' site:' . $url;
+			  }
+		  }
+	  }
+
       if ( ! isset( $_GET['cx'] ) ) {
         $_GET['cx'] = $this->cse_id;
       }
@@ -223,14 +236,6 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
     function get_search_results_html( $native=false ) {
   		global $more, $active_directory_employee_list_object;
   		$more = 1;
-
-  		if( isset( $_GET['search-choice'] ) && ( 'People Search' == $_GET['search-choice'] || 'people' == $_GET['search-choice'] ) ) {
-  			$_REQUEST['adeq'] = $_GET['s'];
-  			if( isset( $active_directory_employee_list_object ) && is_object( $active_directory_employee_list_object ) ) {
-  				$adel = $active_directory_employee_list_object;
-  				$gce_post_content = $adel->show_employees( /*$group=*/'All_UMW_Faculty_Staff;All_Active_Students_SG', /*$fields=*/$adel->fields_to_show, /*$formatting=*/array(), /*$echo=*/false, /*$show_title=*/false, /*$wrap_list=*/true, /*$include_search=*/false );
-  			}
-  		}
 
         if ( get_option( 'native-cse', false ) ) {
             $gce_post_content = '<script>
