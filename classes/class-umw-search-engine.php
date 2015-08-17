@@ -29,12 +29,22 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
 		}
 
 		add_action( 'init', array( $this, 'init' ) );
+		add_action( 'wp', array( $this, 'redirect_student_search' ) );
 
 		add_filter( 'validate-umw-global-toolbar-settings', array( $this, 'sanitize_settings' ), 10, 2 );
 		add_filter( 'umw-global-toolbar-settings-checkbox-fields', array( $this, 'register_settings_field' ) );
 		add_filter( 'umw-toolbar-default-settings-main', array( $this, 'default_settings_main' ) );
     }
 
+	function redirect_student_search() {
+		if ( isset( $_REQUEST['search-choice'] ) && 'students' == $_REQUEST['search-choice'] ) {
+			$url = 'http://students.umw.edu/directory/';
+			$url = add_query_arg( 'adeq', stripslashes( $_REQUEST['s'] ), $url );
+			header( "Location: $url" );
+			die();
+		}
+	}
+	
 	/**
 	 * Set things up for our plugin
 	 */
@@ -378,7 +388,8 @@ jQuery( function( $ ) {
 			$choices['wordpress'] = __( 'Search this Site' );
 		}
 		if ( $this->people_search ) {
-			$choices['people'] = __( 'Search People' );
+			$choices['people'] = __( 'Search Faculty &amp; Staff' );
+			/*$choices['students'] = __( 'Search Students' );*/
 		}
 
 		$form = '
