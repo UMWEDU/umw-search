@@ -416,7 +416,7 @@ jQuery( function( $ ) {
 				$meat .= sprintf( '<li><label for="%1$s" tabindex="%5$d"><input type="radio" name="search-choice" id="%1$s" value="%2$s"%3$s/><span>%4$s</span></label>', 'search-choice-' . $k, $k, checked( $search_choice, $k, false ), $v, $tab );
 				$tab++;
 			}
-			$meat = sprintf( '<ul class="umw-search-choices show">%s</ul>', $meat );
+			$meat = sprintf( '<fieldset class="umw-search-choices-fieldset"><legend>%s</legend><ul class="umw-search-choices show">%s</ul></fieldset>', __( 'What to search:' ), $meat );
 		} else {
 			// Do a plain search form
 			$meat = '<input type="hidden" name="search-choice" value="google"/>';
