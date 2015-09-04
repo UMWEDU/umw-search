@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 if ( ! class_exists( 'UMW_Search_Engine' ) ) {
   class UMW_Search_Engine {
-    public $v = '0.2.7';
+    public $v = '0.2.8';
     public $use_buttons = false;
     private $cse_id = null;
     public $people_search = true;
@@ -416,7 +416,7 @@ jQuery( function( $ ) {
 				$meat .= sprintf( '<li><label for="%1$s" tabindex="%5$d"><input type="radio" name="search-choice" id="%1$s" value="%2$s"%3$s/><span>%4$s</span></label>', 'search-choice-' . $k, $k, checked( $search_choice, $k, false ), $v, $tab );
 				$tab++;
 			}
-			$meat = sprintf( '<fieldset class="umw-search-choices-fieldset" style="display: block; margin: 0; padding: 0; border: none;"><legend style="display: inline-block; width: 0; height: 0; font-size: 0; line-height: 0; text-indent: -9999em; overflow: hidden; margin: 0; padding: 0; border: none;">%s</legend><ul class="umw-search-choices show">%s</ul></fieldset>', __( 'What to search:' ), $meat );
+			$meat = sprintf( '<fieldset class="umw-search-choices-fieldset" style="display: block; margin: 0; padding: 0; border: none; width: 100%%; height: 0;"><legend style="display: inline-block; width: 0; height: 0; font-size: 0; line-height: 0; text-indent: -9999em; overflow: hidden; margin: 0; padding: 0; border: none;">%s</legend><ul class="umw-search-choices show">%s</ul></fieldset>', __( 'What to search:' ), $meat );
 		} else {
 			// Do a plain search form
 			$meat = '<input type="hidden" name="search-choice" value="google"/>';
