@@ -153,7 +153,7 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
      */
     function enqueue_scripts() {
       /* Enqueue the script that displays and styles the search results */
-      wp_enqueue_script( 'google-cse-iframe', '//www.google.com/cse/brand?form=cse-search-box&lang=en', array(), 1, true );
+      wp_enqueue_script( 'google-cse-iframe', '//cse.google.com/brand?form=cse-search-box&lang=en', array(), 1, true );
     }
 
     /**
@@ -294,7 +294,7 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
   			$r .= $gce_post_content;
   		} else {
   			$r .= '
-  <iframe name="googleSearchFrame" src="//www.google.com/cse?cx=' . urlencode( $_GET['cx'] ) . '&cof=' . urlencode( $_GET['cof'] ) . '&ie=' . urlencode( $_GET['ie'] ) . '&q=' . urlencode( stripslashes( $_GET['s'] ) ) . '" width="100%" height="1650" marginwidth="0" marginheight="0" hspace="0" vspace="0" allowtransparency="true" scrolling="no" frameborder="0"></iframe>';
+  <iframe name="googleSearchFrame" src="//cse.google.com/cse?cx=' . urlencode( $_GET['cx'] ) . '&cof=' . urlencode( $_GET['cof'] ) . '&ie=' . urlencode( $_GET['ie'] ) . '&q=' . urlencode( stripslashes( $_GET['s'] ) ) . '" width="100%" height="1650" marginwidth="0" marginheight="0" hspace="0" vspace="0" allowtransparency="true" scrolling="no" frameborder="0"></iframe>';
   		}
 
   		$r .= '
@@ -379,7 +379,7 @@ jQuery( function( $ ) {
 
    		$form = '';
 		$searchbox = '<input type="search" autocomplete="off" name="s" id="s" size="31" value="' . stripslashes( esc_attr( $searchtext ) ) . '"/>';
-		$searchbox = '<input autocomplete="off" type="search" size="10" class=" gsc-input " name="s" title="search" id="searchString" dir="ltr" spellcheck="false" style="outline: none; background: url(//www.google.com/cse/intl/en/images/google_custom_search_watermark.gif) 0% 50% no-repeat rgb(255, 255, 255);" data-cip-id="gsc-i-id1" value="' . stripslashes( esc_attr( $searchtext ) ) . '">';
+		$searchbox = '<input autocomplete="off" type="search" size="10" class=" gsc-input " name="s" title="search" id="searchString" dir="ltr" spellcheck="false" style="outline: none; background: url(//cse.google.com/intl/en/images/google_custom_search_watermark.gif) 0% 50% no-repeat rgb(255, 255, 255);" data-cip-id="gsc-i-id1" value="' . stripslashes( esc_attr( $searchtext ) ) . '">';
 		$searchbox = '<label class="hidden" for="searchString">' . __( 'Search:' ) . '</label>' . $searchbox;
 
 		$choices = array();
