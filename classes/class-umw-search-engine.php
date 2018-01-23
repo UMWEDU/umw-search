@@ -423,7 +423,7 @@ jQuery( function( $ ) {
 		}
 
 		if ( isset( $GLOBALS['umw_outreach_mods_obj'] ) && ! is_a( $GLOBALS['umw_outreach_mods_obj'], 'UMW_Outreach_Mods' ) ) {
-			return;
+			return sprintf( $form, $meat, $searchbox, $s );
 		}
 
 		wp_enqueue_script( 'jquery' );
