@@ -422,6 +422,10 @@ jQuery( function( $ ) {
 			$meat = '<input type="hidden" name="search-choice" value="google"/>';
 		}
 
+		if ( isset( $GLOBALS['umw_outreach_mods_obj'] ) && is_a( $GLOBALS['umw_outreach_mods_obj'], 'UMW_Outreach_Mods' ) ) {
+		    return;
+        }
+
 		wp_enqueue_script( 'jquery' );
 		$s = "document.querySelectorAll('.umw-search-choices')[0].className = 'umw-search-choices';";
 		$s = sprintf( '<script type="text/javascript">%s</script>', $s );
