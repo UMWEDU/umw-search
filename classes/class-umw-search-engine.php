@@ -425,7 +425,12 @@ jQuery( function( $ ) {
 		wp_enqueue_script( 'jquery' );
 		$s = "document.querySelectorAll('.umw-search-choices')[0].className = 'umw-search-choices';";
 		$s = sprintf( '<script type="text/javascript">%s</script>', $s );
-		add_action( 'wp_print_footer_scripts', array( $this, 'do_search_choices_js' ), 1 );
+
+        if ( isset( $GLOBALS['umw_outreach_mods_obj'] ) && ! is_a( $GLOBALS['umw_outreach_mods_obj'], 'UMW_Outreach_Mods' ) ) {
+            return sprintf( $form, $meat, $searchbox, $s );
+        }
+
+        add_action( 'wp_print_footer_scripts', array( $this, 'do_search_choices_js' ), 1 );
 		return sprintf( $form, $meat, $searchbox, $s );
 	 }
 
