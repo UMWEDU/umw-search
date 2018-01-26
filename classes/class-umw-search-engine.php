@@ -8,14 +8,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 if ( ! class_exists( 'UMW_Search_Engine' ) ) {
   class UMW_Search_Engine {
-    public $v = '0.2.8';
-    public $use_buttons = false;
-    private $cse_id = null;
-    public $people_search = true;
+	public $v = '0.2.8';
+	public $use_buttons = false;
+	private $cse_id = null;
+	public $people_search = true;
 	public $use_search = false;
 	public $toolbar = null;
 
-    function __construct() {
+	function __construct() {
 		global $umw_online_tools_obj;
 		if ( isset( $umw_online_tools_obj ) && is_a( $umw_online_tools_obj, 'UMW_Online_Tools' ) ) {
 			$this->toolbar = $umw_online_tools_obj;
@@ -34,7 +34,7 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
 		add_filter( 'validate-umw-global-toolbar-settings', array( $this, 'sanitize_settings' ), 10, 2 );
 		add_filter( 'umw-global-toolbar-settings-checkbox-fields', array( $this, 'register_settings_field' ) );
 		add_filter( 'umw-toolbar-default-settings-main', array( $this, 'default_settings_main' ) );
-    }
+	}
 
 	function redirect_student_search() {
 		if ( isset( $_REQUEST['search-choice'] ) && 'students' == $_REQUEST['search-choice'] ) {
@@ -139,53 +139,53 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
 		return $options;
 	}
 
-    /**
-     * Perform any theme changes that need to happen
-     */
-    function template_redirect() {
+	/**
+	 * Perform any theme changes that need to happen
+	 */
+	function template_redirect() {
 		remove_action( 'umw_header_content_full', 'umw_do_search_form', 12 );
 		remove_action( 'umw_header_content_global', 'umw_do_search_form', 12 );
 		add_action( 'umw-main-header-bar', array( $this, 'do_search_form' ), 5 );
-    }
+	}
 
-    /**
-     * Enqueue any necessary JavaScript for this plugin
-     */
-    function enqueue_scripts() {
-      /* Enqueue the script that displays and styles the search results */
-      wp_enqueue_script( 'google-cse-iframe', '//cse.google.com/brand?form=cse-search-box&lang=en', array(), 1, true );
-    }
+	/**
+	 * Enqueue any necessary JavaScript for this plugin
+	 */
+	function enqueue_scripts() {
+	  /* Enqueue the script that displays and styles the search results */
+	  wp_enqueue_script( 'google-cse-iframe', '//cse.google.com/brand?form=cse-search-box&lang=en', array(), 1, true );
+	}
 
-    /**
-     * Return the appropriate search results template
-     */
-    function get_search_results( $search_template ) {
-      add_filter( 'adel_search_results', array( $this, 'get_adel_search_again' ) );
-      // Avoide replacing the search results if we're searching the media library
-      if ( isset( $_GET['media-library'] ) ) {
-        return $search_template;
-      }
+	/**
+	 * Return the appropriate search results template
+	 */
+	function get_search_results( $search_template ) {
+	  add_filter( 'adel_search_results', array( $this, 'get_adel_search_again' ) );
+	  // Avoide replacing the search results if we're searching the media library
+	  if ( isset( $_GET['media-library'] ) ) {
+		return $search_template;
+	  }
 
-      $this->set_default_get_vals();
-      $this->replace_search_results_post_object();
-      return $search_template;
-    }
+	  $this->set_default_get_vals();
+	  $this->replace_search_results_post_object();
+	  return $search_template;
+	}
 
-    /**
-     * Set up the appropriate default GET variables
-     */
-    function set_default_get_vals() {
-      /* Make sure we're searching something */
-      if ( ! isset( $_GET['search-choice'] ) ) {
-        $_GET['search-choice'] = 'google';
-      }
+	/**
+	 * Set up the appropriate default GET variables
+	 */
+	function set_default_get_vals() {
+	  /* Make sure we're searching something */
+	  if ( ! isset( $_GET['search-choice'] ) ) {
+		$_GET['search-choice'] = 'google';
+	  }
 
-      /* Implement single site search */
-      if ( isset( $_GET['search-choice'] ) && ( 'wordpress' == $_GET['search-choice'] ) ) {
-        if ( isset( $_GET['s'] ) && ! stristr( $_GET['s'], 'site:' ) ) {
-          $_GET['s'] .= ' site:' . get_bloginfo( 'url' );
-        }
-      }
+	  /* Implement single site search */
+	  if ( isset( $_GET['search-choice'] ) && ( 'wordpress' == $_GET['search-choice'] ) ) {
+		if ( isset( $_GET['s'] ) && ! stristr( $_GET['s'], 'site:' ) ) {
+		  $_GET['s'] .= ' site:' . get_bloginfo( 'url' );
+		}
+	  }
 
 	  if ( defined( 'UMW_EMPLOYEE_DIRECTORY' ) ) {
 		  if ( is_numeric( UMW_EMPLOYEE_DIRECTORY ) ) {
@@ -200,126 +200,126 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
 		  }
 	  }
 
-      if ( ! isset( $_GET['cx'] ) ) {
-        $_GET['cx'] = $this->cse_id;
-      }
-      if ( ! isset( $_GET['cof'] ) ) {
-        $_GET['cof'] = 'FORID:11';
-      }
-      if ( ! isset( $_GET['ie'] ) ) {
-        $_GET['ie'] = 'UTF-8';
-      }
-    }
+	  if ( ! isset( $_GET['cx'] ) ) {
+		$_GET['cx'] = $this->cse_id;
+	  }
+	  if ( ! isset( $_GET['cof'] ) ) {
+		$_GET['cof'] = 'FORID:11';
+	  }
+	  if ( ! isset( $_GET['ie'] ) ) {
+		$_GET['ie'] = 'UTF-8';
+	  }
+	}
 
-    /**
-     * Modify the WP post object to display search results
-     */
-    function replace_search_results_post_object() {
-      global $wp_query;
-      if ( ! is_object( $wp_query ) ) {
-        $wp_query = new WP_Query( 'p=1' );
-      }
-      $wp_query->posts = $this->get_google_search_post_object();
-      $wp_query->is_404 = false;
-      $wp_query->is_search = true;
-      $wp_query->is_singular = true;
-  		$wp_query->is_page = true;
-  		$wp_query->is_paged = false;
-  		$wp_query->is_home = false;
-  		$wp_query->is_front_page = false;
-  		$wp_query->post_count = 1;
-  		$wp_query->found_posts = 1;
-  		$wp_query->post = $wp_query->posts[0];
-  		global $post;
-  		$post = $wp_query->posts[0];
-    }
-    /**
-     * Replace the standard WP loop with the search results
-     */
-    function search_results_loop( &$slug, &$name ) {
-  		if( isset( $_GET['s'] ) ) {
-  			$this->set_default_get_vals();
+	/**
+	 * Modify the WP post object to display search results
+	 */
+	function replace_search_results_post_object() {
+	  global $wp_query;
+	  if ( ! is_object( $wp_query ) ) {
+		$wp_query = new WP_Query( 'p=1' );
+	  }
+	  $wp_query->posts = $this->get_google_search_post_object();
+	  $wp_query->is_404 = false;
+	  $wp_query->is_search = true;
+	  $wp_query->is_singular = true;
+		$wp_query->is_page = true;
+		$wp_query->is_paged = false;
+		$wp_query->is_home = false;
+		$wp_query->is_front_page = false;
+		$wp_query->post_count = 1;
+		$wp_query->found_posts = 1;
+		$wp_query->post = $wp_query->posts[0];
+		global $post;
+		$post = $wp_query->posts[0];
+	}
+	/**
+	 * Replace the standard WP loop with the search results
+	 */
+	function search_results_loop( &$slug, &$name ) {
+		if( isset( $_GET['s'] ) ) {
+			$this->set_default_get_vals();
 ?>
 <?php get_search_form(); ?>
 <?php echo $this->get_search_results_html(); ?>
 <?php
-  			$slug = null;
-  			$name = null;
-  		}
-  	}
+			$slug = null;
+			$name = null;
+		}
+	}
 
-    /**
-     * Set up a WP post object with appropriate values for our search results
-     */
-    function get_google_search_post_object() {
-  		return array( (object)array(
-  			'post_author'		=> 1,
-  			'post_date'			=> date( "Y-m-d h:i:s" ),
-  			'post_date_gmt'		=> gmdate( "Y-m-d h:i:s" ),
-  			'post_content'		=> $this->get_search_results_html(),
-  			'post_excerpt'		=> $this->get_search_results_html(),
-  			'post_title'		=> 'Search Results',
-  			'post_status'		=> 'publish',
-  			'comment_status'	=> 'closed',
-  			'ping_status'		=> 'closed',
-  			'post_type'			=> 'page',
-  			'post_mime_type'	=> 'text/html',
-  		) );
-  	}
+	/**
+	 * Set up a WP post object with appropriate values for our search results
+	 */
+	function get_google_search_post_object() {
+		return array( (object)array(
+			'post_author'		=> 1,
+			'post_date'			=> date( "Y-m-d h:i:s" ),
+			'post_date_gmt'		=> gmdate( "Y-m-d h:i:s" ),
+			'post_content'		=> $this->get_search_results_html(),
+			'post_excerpt'		=> $this->get_search_results_html(),
+			'post_title'		=> 'Search Results',
+			'post_status'		=> 'publish',
+			'comment_status'	=> 'closed',
+			'ping_status'		=> 'closed',
+			'post_type'			=> 'page',
+			'post_mime_type'	=> 'text/html',
+		) );
+	}
 
-    function get_search_results_html( $native=false ) {
-  		global $more, $active_directory_employee_list_object;
-  		$more = 1;
+	function get_search_results_html( $native=false ) {
+		global $more, $active_directory_employee_list_object;
+		$more = 1;
 
-        if ( get_option( 'native-cse', false ) ) {
-            $gce_post_content = '<script>
+		if ( get_option( 'native-cse', false ) ) {
+			$gce_post_content = '<script>
   (function() {
-    var cx = \'' . $this->cse_id . '\';
-    var gcse = document.createElement(\'script\');
-    gcse.type = \'text/javascript\';
-    gcse.async = true;
-    gcse.src = (document.location.protocol == \'https:\' ? \'https:\' : \'http:\') +
-        \'//cse.google.com/cse.js?cx=\' + cx;
-    var s = document.getElementsByTagName(\'script\')[0];
-    s.parentNode.insertBefore(gcse, s);
+	var cx = \'' . $this->cse_id . '\';
+	var gcse = document.createElement(\'script\');
+	gcse.type = \'text/javascript\';
+	gcse.async = true;
+	gcse.src = (document.location.protocol == \'https:\' ? \'https:\' : \'http:\') +
+		\'//cse.google.com/cse.js?cx=\' + cx;
+	var s = document.getElementsByTagName(\'script\')[0];
+	s.parentNode.insertBefore(gcse, s);
   })();
 </script>
 <gcse:searchresults-only></gcse:searchresults-only>';
-        }
+		}
 
-  		$r = '
+		$r = '
   <div id="cse-search-results" class="umw-search-results">';
 
-  		if( isset( $gce_post_content ) && !empty( $gce_post_content ) ) {
-  			$r .= $gce_post_content;
-  		} else {
-  			$r .= '
+		if( isset( $gce_post_content ) && !empty( $gce_post_content ) ) {
+			$r .= $gce_post_content;
+		} else {
+			$r .= '
   <iframe name="googleSearchFrame" src="//cse.google.com/cse?cx=' . urlencode( $_GET['cx'] ) . '&cof=' . urlencode( $_GET['cof'] ) . '&ie=' . urlencode( $_GET['ie'] ) . '&q=' . urlencode( stripslashes( $_GET['s'] ) ) . '" width="100%" height="1650" marginwidth="0" marginheight="0" hspace="0" vspace="0" allowtransparency="true" scrolling="no" frameborder="0"></iframe>';
-  		}
+		}
 
-  		$r .= '
+		$r .= '
   </div>';
 
-  		return $r;
-  	}
+		return $r;
+	}
 
-    /**
-     * Implement the "Search Again" box on the people search results
-     */
-    function get_adel_search_again( $content, $searchid = 's' ) {
-   		if ( ! isset( $searchid ) )
-   			$searchid = 's';
-   		$rt = '<p>Would you like to <a href="#' . $searchid . '" class="click-to-focus">try a different search?</a></p>';
-   		add_action( 'wp_print_footer_scripts', array( $this, 'focus_search_box' ) );
-   		wp_register_script( 'jquery-ui-effects', get_bloginfo( 'stylesheet_directory' ) . '/lib/js/jquery.effects.core.min.js', array( 'jquery-ui-core' ), '1.8.16', true );
-   		return $content . $rt;
-   	}
+	/**
+	 * Implement the "Search Again" box on the people search results
+	 */
+	function get_adel_search_again( $content, $searchid = 's' ) {
+		if ( ! isset( $searchid ) )
+			$searchid = 's';
+		$rt = '<p>Would you like to <a href="#' . $searchid . '" class="click-to-focus">try a different search?</a></p>';
+		add_action( 'wp_print_footer_scripts', array( $this, 'focus_search_box' ) );
+		wp_register_script( 'jquery-ui-effects', get_bloginfo( 'stylesheet_directory' ) . '/lib/js/jquery.effects.core.min.js', array( 'jquery-ui-core' ), '1.8.16', true );
+		return $content . $rt;
+	}
 
-    /**
-     * Make the people search reset button work
-     */
-    function focus_search_box() {
-   		wp_print_scripts( 'jquery-ui-effects' );
+	/**
+	 * Make the people search reset button work
+	 */
+	function focus_search_box() {
+		wp_print_scripts( 'jquery-ui-effects' );
 ?>
 <script type="text/javascript">
 jQuery( function( $ ) {
@@ -331,53 +331,53 @@ jQuery( function( $ ) {
 } );
 </script>
 <?php
-   	}
+	}
 
-    /**
-     * Implement the JS-based native Google CSE form
-     */
-    function get_native_google_search_form( $form, $searchtext=null ) {
-        ob_start();
+	/**
+	 * Implement the JS-based native Google CSE form
+	 */
+	function get_native_google_search_form( $form, $searchtext=null ) {
+		ob_start();
 ?>
 <div class="umw-google-cse">
 <script>
   (function() {
-    var cx = '<?php echo json_encode( $this->cse_id ) ?>';
-    var gcse = document.createElement('script');
-    gcse.type = 'text/javascript';
-    gcse.async = true;
-    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
-        '//cse.google.com/cse.js?cx=' + cx;
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(gcse, s);
+	var cx = '<?php echo json_encode( $this->cse_id ) ?>';
+	var gcse = document.createElement('script');
+	gcse.type = 'text/javascript';
+	gcse.async = true;
+	gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+		'//cse.google.com/cse.js?cx=' + cx;
+	var s = document.getElementsByTagName('script')[0];
+	s.parentNode.insertBefore(gcse, s);
   })();
 </script>
 <gcse:searchbox-only></gcse:searchbox-only>
 </div>
 <?php
-        return ob_get_clean();
-    }
+		return ob_get_clean();
+	}
 
-    /**
-     * Implement the Google search box
-     */
-    function get_google_search_form( $form, $searchtext=null, $native=false ) {
-        if ( $native ) {
-            return $this->get_native_google_search_form( $form, $searchtext );
-        }
+	/**
+	 * Implement the Google search box
+	 */
+	function get_google_search_form( $form, $searchtext=null, $native=false ) {
+		if ( $native ) {
+			return $this->get_native_google_search_form( $form, $searchtext );
+		}
 
-   		/**
-   		 * iFrame Search Form
-   		 */
-   		global $blog_id;
+		/**
+		 * iFrame Search Form
+		 */
+		global $blog_id;
 
-   		$searchtext = is_null( $searchtext ) ? ( isset( $_GET['s'] ) ? $_GET['s'] : '' ) : $searchtext;
-   		$searchtext = trim( str_replace( 'site:' . get_bloginfo( 'url' ), '', $searchtext ) );
-   		$searchtext = empty( $searchtext ) ? '' : $searchtext;
+		$searchtext = is_null( $searchtext ) ? ( isset( $_GET['s'] ) ? $_GET['s'] : '' ) : $searchtext;
+		$searchtext = trim( str_replace( 'site:' . get_bloginfo( 'url' ), '', $searchtext ) );
+		$searchtext = empty( $searchtext ) ? '' : $searchtext;
 
-   		$search_choice = isset( $_GET['search-choice'] ) ? $_GET['search-choice'] : ( $this->use_buttons ? 'Search UMW' : 'google' );
+		$search_choice = isset( $_GET['search-choice'] ) ? $_GET['search-choice'] : ( $this->use_buttons ? 'Search UMW' : 'google' );
 
-   		$form = '';
+		$form = '';
 		$searchbox = '<input type="search" autocomplete="off" name="s" id="s" size="31" value="' . stripslashes( esc_attr( $searchtext ) ) . '"/>';
 		$searchbox = '<input autocomplete="off" type="search" size="10" class=" gsc-input " name="s" title="search" id="searchString" dir="ltr" spellcheck="false" style="outline: none; background: url(//cse.google.com/intl/en/images/google_custom_search_watermark.gif) 0% 50% no-repeat rgb(255, 255, 255);" data-cip-id="gsc-i-id1" value="' . stripslashes( esc_attr( $searchtext ) ) . '">';
 		$searchbox = '<label class="hidden" for="searchString">' . __( 'Search:' ) . '</label>' . $searchbox;
@@ -427,7 +427,7 @@ jQuery( function( $ ) {
 		$s = sprintf( '<script type="text/javascript">%s</script>', $s );
 		add_action( 'wp_print_footer_scripts', array( $this, 'do_search_choices_js' ), 1 );
 		return sprintf( $form, $meat, $searchbox, $s );
-     }
+	 }
 
 	 function do_search_choices_js() {
 ?>
@@ -511,7 +511,7 @@ jQuery( function( $ ) {
 	UMWSearchJS.input.on( 'focus', UMWSearchJS.do_focus );
 	UMWSearchJS.input.on( 'click', function() { return UMWSearchJS.open(); } );
 	UMWSearchJS.container.on( 'click', function( e ) {
-        // keep click events from leaving the searchbox to avoid clicks triggering the close below if the clicks are also in the searchbox
+		// keep click events from leaving the searchbox to avoid clicks triggering the close below if the clicks are also in the searchbox
 		e.stopPropagation();
 	} );
 	jQuery( 'html' ).on( 'click', function() { UMWSearchJS.log( 'You clicked somewhere in the HTML element' ); return UMWSearchJS.close(); } );
@@ -526,16 +526,16 @@ jQuery( function( $ ) {
 	 * Currently just returns the original Google search box
 	 */
 	function get_search_form( $form, $search_text=null ) {
-        $native = get_option( 'native-cse', false );
+		$native = get_option( 'native-cse', false );
 		return $this->get_google_search_form( $form, $search_text, $native );
 	}
 
-     /**
-      * Echo the search form
-      */
-    function do_search_form( $form=null, $search_text=null ) {
-      echo $this->get_google_search_form( $form, $search_text );
-    }
+	 /**
+	  * Echo the search form
+	  */
+	function do_search_form( $form=null, $search_text=null ) {
+	  echo $this->get_google_search_form( $form, $search_text );
+	}
 
   }
 }
