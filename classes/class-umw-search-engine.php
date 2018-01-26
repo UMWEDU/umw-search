@@ -271,7 +271,7 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
 		global $more, $active_directory_employee_list_object;
 		$more = 1;
 
-		if ( get_option( 'native-cse', false ) ) {
+		if ( get_option( 'native-cse', false ) || 1 ) {
 			$gce_post_content = '<script>
   (function() {
 	var cx = \'' . $this->cse_id . '\';
