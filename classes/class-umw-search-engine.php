@@ -426,7 +426,7 @@ jQuery( function( $ ) {
 		$s = "document.querySelectorAll('.umw-search-choices')[0].className = 'umw-search-choices';";
 		$s = sprintf( '<script type="text/javascript">%s</script>', $s );
 
-        if ( isset( $GLOBALS['umw_outreach_mods_obj'] ) && ! is_a( $GLOBALS['umw_outreach_mods_obj'], 'UMW_Outreach_Mods' ) ) {
+        if ( isset( $GLOBALS['umw_outreach_mods_obj'] ) && ! is_a( $GLOBALS['umw_outreach_mods_obj'], '\UMW\Outreach\Root' ) ) {
             return sprintf( $form, $meat, $searchbox, $s );
         }
 
