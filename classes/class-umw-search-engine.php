@@ -389,7 +389,7 @@ jQuery( function( $ ) {
 		}
 		if ( $this->people_search ) {
 			$choices['people'] = __( 'Search Faculty &amp; Staff' );
-			$choices['students'] = __( 'Search Students' );
+			/*$choices['students'] = __( 'Search Students' );*/
 		}
 
 		$form = '
