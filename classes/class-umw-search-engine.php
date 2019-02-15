@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 if ( ! class_exists( 'UMW_Search_Engine' ) ) {
   class UMW_Search_Engine {
-	public $v = '0.2.8';
+	public $v = '0.2.9';
 	public $use_buttons = false;
 	private $cse_id = null;
 	public $people_search = true;
@@ -16,6 +16,17 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
 	public $toolbar = null;
 
 	function __construct() {
+		/**
+		 * Somewhat hacky way to avoid pulling the toolbar into sites that use Outreach Pro
+		 *        on the old UMW site
+		 */
+		if ( defined( 'WP_DEFAULT_THEME' ) && 'umw' == WP_DEFAULT_THEME ) {
+			$theme = get_stylesheet();
+			if ( 'outreach-pro' == $theme ) {
+				return;
+			}
+		}
+
 		global $umw_online_tools_obj;
 		if ( isset( $umw_online_tools_obj ) && is_a( $umw_online_tools_obj, 'UMW_Online_Tools' ) ) {
 			$this->toolbar = $umw_online_tools_obj;
