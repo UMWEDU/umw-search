@@ -90,6 +90,15 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
 		if ( false !== $this->toolbar->is_main_umw_theme() ) {
 			$this->use_search = true;
 		}
+
+		if ( ! array_key_exists( 'global-bar', $this->toolbar->options ) ) {
+		    $this->toolbar->options['global-bar'] = false;
+        }
+
+        if ( ! array_key_exists( 'search', $this->toolbar->options ) ) {
+		    $this->toolbar->options['search'] = false;
+        }
+
 		if ( false !== $this->toolbar->options['global-bar'] && false !== $this->toolbar->options['search'] ) {
 			$this->use_search = true;
 		}
