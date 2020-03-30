@@ -40,6 +40,7 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
 		}
 
 		add_action( 'init', array( $this, 'init' ) );
+		add_action( 'wp', array( $this, 'check_page_template' ) );
 		add_action( 'wp', array( $this, 'redirect_student_search' ) );
 
 		add_filter( 'validate-umw-global-toolbar-settings', array( $this, 'sanitize_settings' ), 10, 2 );
@@ -130,6 +131,24 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
 		/* Hook into the template_redirect action to perform theme-altering changes */
 		add_action( 'template_redirect', array( $this, 'template_redirect' ), 0 );
 	}
+
+	  /**
+	   * If this page uses the Landing Page template, undo the changes we've made with this plugin
+       *
+       * @access public
+       * @since  2020.03.30
+       * @return void
+	   */
+	  public function check_page_template() {
+	      if ( ! is_page_template( 'page_landing.php' ) ) {
+	          return;
+          }
+
+		  remove_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+
+		  /* Hook into the template_redirect action to perform theme-altering changes */
+		  remove_action( 'template_redirect', array( $this, 'template_redirect' ), 0 );
+      }
 
 	/**
 	 * Add the settings field for this plugin to the array of fields being registered through the online tools plugin
