@@ -92,6 +92,12 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
 				$this->use_search = true;
 			}
 
+			$header = get_site_option('global-umw-header', false);
+
+			if ( $header && strstr( $header, '<header class="header umw-header logo-dark" data-module="header">' ) ) {
+				$this->use_search = true;
+			}
+
 			if ( ! array_key_exists( 'global-bar', $this->toolbar->options ) ) {
 				$this->toolbar->options['global-bar'] = false;
 			}
