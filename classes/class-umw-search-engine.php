@@ -618,7 +618,7 @@ class UMW_Online_Tools_Placeholder {
 	}
 
 	function is_main_umw_theme() {
-		return false;
+		return defined('UMW_CB_VERSION');
 	}
 }
 
