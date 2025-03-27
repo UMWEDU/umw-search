@@ -309,12 +309,13 @@ if ( ! class_exists( 'UMW_Search_Engine' ) ) {
 					'post_date_gmt'  => gmdate( "Y-m-d h:i:s" ),
 					'post_content'   => $this->get_search_results_html(),
 					'post_excerpt'   => $this->get_search_results_html(),
-					'post_title'     => 'Search Results',
+					'post_title'     => __( 'Search Results', 'umw-search' ),
 					'post_status'    => 'publish',
 					'comment_status' => 'closed',
 					'ping_status'    => 'closed',
 					'post_type'      => 'page',
 					'post_mime_type' => 'text/html',
+                    'ancestors'      => array(),
 				)
 			);
 		}
