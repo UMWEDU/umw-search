@@ -9,7 +9,7 @@
 
 **Tested up to:** 4.2.2
 
-**Stable tag:** 0.2.5
+**Stable tag:** 0.3
 
 **License:** GPLv2 or later
 
@@ -51,11 +51,14 @@ For accessibility reasons, this plugin was originally designed to mimic the HTML
 ## Changelog ##
 
 ### 0.3 ###
-* Add placeholder class to stop the plugin from throwing fatal errors if the Online Tools plugin can’t be located
 
+* Add placeholder class to stop the plugin from throwing fatal errors if the Online Tools plugin can’t be located
+* Make more compatible with PHP 8
 
 ### 0.2 ###
+
 * Integrate the plugin into the Online Tools plugin
 
 ### 0.1 ###
+
 * Initial version
